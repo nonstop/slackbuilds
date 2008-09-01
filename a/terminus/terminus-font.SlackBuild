@@ -1,0 +1,57 @@
+#!/bin/sh
+
+# Slackware build script for terminus-font
+
+# Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
+
+PRGNAM=terminus-font
+VERSION=${VERSION:-4.26}
+ARCH=noarch
+BUILD=${BUILD:-1}
+TAG=${TAG:-_SBo}
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/$TAG}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+set -e 
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+rm -rf $PRGNAM-$VERSION
+tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+cd $PRGNAM-$VERSION
+[ "$TEST_BUILD" ] || chown -R root:root .
+
+# apply patches if any
+for i in `ls $CWD/*.diff.gz 2> /dev/null` ; do zcat $i | patch -p1 ; done
+
+./configure \
+  --prefix=/usr \
+  --psfdir=/usr/share/kbd/consolefonts \
+  --acmdir=/usr/share/kbd/consoletrans \
+  --x11dir=/usr/share/fonts/local
+
+[ "$JOBS" ] && make -j$JOBS || make
+make install DESTDIR=$PKG TESTDIR=
+make install-uni DESTDIR=$PKG TESTDIR=
+make install-ref DESTDIR=$PKG TESTDIR=
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a README* $PKG/usr/doc/$PRGNAM-$VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+cat <<- 'EOT' > $PKG/install/doinst.sh
+    mkfontdir usr/share/fonts/local
+    touch usr/share/fonts/local
+    fc-cache usr/share/fonts/local
+EOT
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.tgz
+
