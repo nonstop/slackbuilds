@@ -1,2 +1,7 @@
 *.tar.gz
 *.tar.bz2
+*.zip
+ap/mp32ogg/mp32ogg
+ap/unrar/unrar.1.gz
+ap/vim/patches/
+
