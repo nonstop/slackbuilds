@@ -1,0 +1,56 @@
+#!/bin/sh
+
+# Slackware build script for mp32ogg
+
+# Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
+
+PRGNAM=mp32ogg
+VERSION=${VERSION:-0.11}
+ARCH=noarch
+BUILD=${BUILD:-1}
+TAG=${TAG:-_SBo}
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/$TAG}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+set -e 
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+mkdir -p $PRGNAM-$VERSION
+
+# it is expected that required modules exist in $CWD
+REQUIRES='String-ShellQuote-1.03 MP3-Info-1.23'
+for req in $REQUIRES;
+do
+    cd $TMP/$PRGNAM-$VERSION
+    tar -xvf $CWD/$req.tar.gz
+    [ "$TEST_BUILD" ] || chown -R root:root .
+    find . \
+     \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+     -exec chmod 755 {} \; -o \
+     \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+     -exec chmod 644 {} \;
+    cd $req
+    perl Makefile.PL
+    make
+    make install DESTDIR=$PKG
+done
+
+mkdir -p $PKG/usr/bin
+cat $CWD/$PRGNAM > $PKG/usr/bin/$PRGNAM
+chmod +x $PKG/usr/bin/$PRGNAM
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.tgz
+

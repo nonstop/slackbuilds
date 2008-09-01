@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description. Line
+# up the first '|' above the ':' following the base package name, and the '|' 
+# on the right side marks the last column you can put a character in. You must
+# make exactly 11 lines for the formatting to be correct. It's also customary
+# to leave one space after the ':'.
+
+     |----handy-ruler---------------------------------------------------------|
+atool: atool (Commandline Tool for Managing File Archives of various Types)
+atool:
+atool: atool is a script for managing file archives of various types (tar,
+atool: tar+gzip, zip, etc).The main command is probably 'aunpack' which 
+atool: extracts files from an archive. It overcomes the dreaded "multiple
+atool: files in archive root" problem by first extracting to a unique
+atool: subdirectory, and then moving back the files if possible.
+atool: aunpack also prevents local files from being overwritten by mistake.
+atool: Other commands provided are apack (for creating archives),
+atool: als (for listing files in archives), and acat (for extracting files
+atool: to stdout).

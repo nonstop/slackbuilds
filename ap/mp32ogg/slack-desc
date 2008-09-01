@@ -1,0 +1,21 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+mp32ogg: mp32ogg (Convert MP3 files to Ogg Vorbis files)
+mp32ogg:
+mp32ogg: mp32ogg is a perl script to convert MP3 files to Ogg Vorbis files, 
+mp32ogg: retaining ID3 information, bitrate, and optionally renaming the 
+mp32ogg: output files, as well as deleting the originals.
+mp32ogg:
+mp32ogg: THIS DEGRADES THE QUALITY, because it goes from one lossy format to
+mp32ogg: another.
+mp32ogg:
+mp32ogg: mp32ogg was written by Nathan Walp <faceprint@faceprint.com>
+mp32ogg: homepage: http://faceprint.com/code/
+mp32ogg:
+
