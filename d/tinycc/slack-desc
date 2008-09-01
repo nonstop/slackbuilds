@@ -1,0 +1,12 @@
+tcc|-----handy-ruler------------------------------------------------------|
+tcc: tcc - Tiny C Compiler
+tcc:
+tcc: TCC (for Tiny C Compiler) is a small, fast, unlimited and safe ANSI C
+tcc: compiler. It generates optimized x86 code, and can compile, assemble
+tcc: and link several times faster than `gcc -O0'. Any C dynamic library
+tcc: can be used directly. It includes an optional memory and bounds
+tcc: checker, and bounds-checked code can be mixed freely with standard
+tcc: code. C script is also supported via the usual hash-bang mechanism.
+tcc:
+tcc: Homepage: http://www.tinycc.org/
+tcc:

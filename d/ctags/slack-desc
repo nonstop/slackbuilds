@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+     |-----handy-ruler------------------------------------------------------|
+ctags: Ctags - Exuberant Ctags
+ctags:
+ctags: Ctags generates an index (or tag) file of language objects found in
+ctags: source files that allows these items to be quickly and easily located
+ctags: by a text editor or other utility. A tag signifies a language object
+ctags: for which an index entry is available (or, alternatively, the index
+ctags: entry created for that object).
+ctags: Tag generation is supported for the following languages: Assembler,
+ctags: AWK, ASP, BETA, Bourne/Korn/Zsh Shell, C, C++, COBOL, Eiffel, Fortran,
+ctags: Java, Lisp, Lua, Make, Pascal, Perl, PHP, Python, REXX, Ruby, S-Lang,
+ctags: Scheme, Tcl, Vim, and YACC.0.
