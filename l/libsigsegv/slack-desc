@@ -1,0 +1,10 @@
+          |-----handy-ruler------------------------------------------------------|
+libsigsegv: libsigsegv (handling page faults in user mode)
+libsigsegv:
+libsigsegv: This is a library for handling page faults in user mode. 
+libsigsegv: A page fault occurs when a program tries to access to a 
+libsigsegv: region of memory that is currently not available.
+libsigsegv: 
+libsigsegv: 
+libsigsegv: http://libsigsegv.sourceforge.net/
+libsigsegv: 
