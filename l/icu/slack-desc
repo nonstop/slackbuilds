@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in. You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+   |-----handy-ruler---------------------------------------------------------|
+icu: ICU
+icu:
+icu: ICU is a mature, widely used set of C/C++ and Java libraries for Unicode
+icu: support, software internationalization and globalization (i18n/g11n).
+icu: It grew out of the JDK 1.1 internationalization APIs, which the ICU team
+icu: contributed, and the project continues to be developed for the most
+icu: advanced Unicode/i18n support. ICU is widely portable and gives
+icu: applications the same results on all platforms and between
+icu: C/C++ and Java software.
+icu:
+icu:
