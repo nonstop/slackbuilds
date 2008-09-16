@@ -1,0 +1,10 @@
+    |-----handy-ruler------------------------------------------------------|
+licq: Licq is a multi-threaded multi-protocol chat client.
+licq: 
+licq: Licq is a multi-threaded ICQ (originally; now it supports AOL 
+licq: and MSN as well) clone written mostly in C++. It uses an 
+licq: extensive plugin system to manage many different functions. 
+licq: The main GUI is written using the Qt widget set.
+licq: 
+licq: http://www.licq.org/
+licq: 
