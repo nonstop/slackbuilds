@@ -1,0 +1,11 @@
+      |-----handy-ruler------------------------------------------------------|
+ledger: ledger (command-line accounting)
+ledger:
+ledger: Ledger is a powerful, double-entry accounting system that is accessed 
+ledger: from the UNIX command-line. This may put off some users — as there is 
+ledger: no flashy UI — but for those who want unparalleled reporting access 
+ledger: to their data, there really is no alternative.
+ledger: 
+ledger: http://www.newartisans.com/software/ledger.html
+ledger: 
+
