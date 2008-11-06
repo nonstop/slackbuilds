@@ -1,0 +1,17 @@
+         |-----handy-ruler------------------------------------------------------|
+PLTScheme: PLTScheme (PLT Scheme compiler)
+PLTScheme: 
+PLTScheme: PLT Scheme is an innovative programming language that builds on a rich 
+PLTScheme: academic and practical tradition.
+PLTScheme: It is suitable for implementation tasks ranging from scripting to 
+PLTScheme: application development, including GUIs, web services, etc.
+PLTScheme: It includes the DrScheme programming environment, a virtual machine 
+PLTScheme: with a just-in-time compiler, tools for creating stand-alone executables, 
+PLTScheme: the PLT Scheme web server, extensive libraries, documentation 
+PLTScheme: for both beginners and experts, and more.
+PLTScheme: It supports the creation of new programming languages through a rich, 
+PLTScheme: expressive syntax system. Example languages include Typed Scheme, ACL2, 
+PLTScheme: FrTime, Lazy Scheme, and ProfessorJ (which is a pedagogical dialect of Java).
+PLTScheme: 
+PLTScheme: http://plt-scheme.org/
+PLTScheme: 
