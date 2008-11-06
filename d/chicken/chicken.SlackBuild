@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=chicken
-VERSION=${VERSION:-3.3.0}
+VERSION=${VERSION:-3.4.0}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -41,24 +41,25 @@ find . \
 make PLATFORM=linux PREFIX=/usr C_COMPILER_OPTIMIZATION_OPTIONS="$SLKCFLAGS"
 make PLATFORM=linux PREFIX=/usr DESTDIR=$PKG install
 
-[ "$JOBS" ] && make -j$JOBS || make
-make install DESTDIR=$PKG
-
 ( cd $PKG
   find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
   find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 )
 
+mv $PKG/usr/share/man $PKG/usr/man
 ( cd $PKG/usr/man
   find . -type f -exec gzip -9 {} \;
   for i in $( find . -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 )
 
+mv $PKG/usr/share/info $PKG/usr/info
 rm -f $PKG/usr/info/dir
 gzip -9 $PKG/usr/info/*.info*
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a LICENSE README NEWS ChangeLog* $PKG/usr/doc/$PRGNAM-$VERSION
+mv $PKG/usr/share/chicken/doc/* $PKG/usr/doc/$PRGNAM-$VERSION
+rm -rf $PKG/usr/share/chicken/doc
+cp -a NEWS ChangeLog* $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
