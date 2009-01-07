@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=subversion
-VERSION=${VERSION:-1.5.0}
+VERSION=${VERSION:-1.5.5}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -51,12 +51,17 @@ CXXFLAGS="$SLKCFLAGS" \
   --with-apr=/usr \
   --with-apr-util=/usr \
   --with-neon=/usr \
+  --with-swig=/usr \
   --with-pic \
   --with-ssl \
   --build=$ARCH-slackware-linux
 
 [ "$JOBS" ] && make -j$JOBS || make
+[ "$JOBS" ] && make -j$JOBS swig-py || make swig-py
+[ "$JOBS" ] && make -j$JOBS swig-pl || make swig-pl
 make install DESTDIR=$PKG
+make install-swig-py DESTDIR=$PKG
+make install-swig-pl DESTDIR=$PKG
 make install-docs DESTDIR=$PKG
 
 ( cd $PKG
