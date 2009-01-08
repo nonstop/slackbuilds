@@ -46,8 +46,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --sysconfdir=/etc \
   --localstatedir=/var \
   --mandir=/usr/man \
-  --with-readline \
-  --with-pcre
+  --with-readline
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG
