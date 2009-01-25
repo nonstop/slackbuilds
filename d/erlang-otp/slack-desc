@@ -1,0 +1,16 @@
+          |-----handy-ruler------------------------------------------------------|
+erlang-otp: erlang-otp (Erlang programming language)
+erlang-otp:
+erlang-otp: Erlang is a programming language which has many features 
+erlang-otp: more commonly associated with an operating system than with 
+erlang-otp: a programming language: concurrent processes, scheduling, 
+erlang-otp: memory management, distribution, networking, etc.
+erlang-otp: 
+erlang-otp: The initial open-source Erlang release contains 
+erlang-otp: the implementation of Erlang, as well as a large part 
+erlang-otp: of Ericsson's middleware for building distributed 
+erlang-otp: high-availability systems. 
+erlang-otp: 
+erlang-otp: 
+erlang-otp: http://erlang.org/
+erlang-otp: 
