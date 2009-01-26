@@ -6,7 +6,9 @@
 
 PRGNAM=otp_src
 PKGNAM=erlang-otp
-VERSION=${VERSION:-R12B-5}
+MAJOR_VERSION=${MAJOR_VERSION:-R12B}
+MINOR_VERSION=${MINOR_VERSION:-5}
+VERSION=$MAJOR_VERSION-$MINOR_VERSION
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -66,5 +68,5 @@ mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.tgz
+/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$MAJOR_VERSION.$MINOR_VERSION-$ARCH-$BUILD$TAG.tgz
 
