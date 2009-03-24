@@ -1,4 +1,3 @@
-      |-----handy-ruler------------------------------------------------------|
 libxcb: libxcb (X protocol C-language Binding)
 libxcb:
 libxcb: The XCB library provides an interface to the X Window System protocol
@@ -9,4 +8,4 @@ libxcb: protocol access, and improved thread support.
 libxcb:
 libxcb:
 libxcb:
-libxcb:
+
