@@ -1,14 +1,14 @@
 #!/bin/sh
 
-# Slackware build script for libxcb
+# Slackware build script for <libxcb>
 
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=libxcb
-VERSION=${VERSION:-1.1.93}
-ARCH=${ARCH:-i686}
+VERSION=${VERSION:-1.2}
+ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
-TAG=${TAG:-_evgeny}
+TAG=${TAG:-_SBo}
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/$TAG}
@@ -55,7 +55,7 @@ make install DESTDIR=$PKG
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a COPYING INSTALL NEWS README $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a README COPYING INSTALL NEWS $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
