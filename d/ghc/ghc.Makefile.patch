@@ -1,4 +1,4 @@
-33c33
+35c35
 < 	$(INSTALL_DATA) $(INSTALL_OPTS) extra-gcc-opts $(libdir)
 ---
 > 	$(INSTALL_DATA) $(INSTALL_OPTS) extra-gcc-opts $(DESTDIR)$(libdir)
