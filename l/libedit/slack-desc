@@ -1,0 +1,8 @@
+       |-----handy-ruler------------------------------------------------------|
+libedit: This Berkeley-style licensed command line editor library provides
+libedit: generic line editing, history, and tokenization functions, similar to
+libedit: those found in GNU Readline.
+libedit:
+libedit:
+libedit: http://www.thrysoee.dk/editline/
+libedit:
