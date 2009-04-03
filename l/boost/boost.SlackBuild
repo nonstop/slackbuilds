@@ -3,7 +3,7 @@
 # Slackware build script for boost
 
 PRGNAM=boost
-VERSION=${VERSION:-1_37_0}
+VERSION=${VERSION:-1_38_0}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -96,10 +96,10 @@ $BJAM \
 mkdir -p $PKG/usr/doc/$PRGNAM-$PKG_VERSION
 cp -a LICENSE_1_0.txt INSTALL $PKG/usr/doc/$PRGNAM-$PKG_VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$PKG_VERSION/$PRGNAM.SlackBuild
-cat $CWD/$PRGNAM.slack-desc > $PKG/usr/doc/$PRGNAM-$PKG_VERSION/$PRGNAM.slack-desc
+cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$PKG_VERSION/slack-desc
 
 mkdir -p $PKG/install
-cat $CWD/$PRGNAM.slack-desc > $PKG/install/slack-desc
+cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$PKG_VERSION-$ARCH-$BUILD$TAG.tgz
