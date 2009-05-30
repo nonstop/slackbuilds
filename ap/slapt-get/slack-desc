@@ -1,0 +1,12 @@
+         |-----handy-ruler------------------------------------------------------|
+slapt-get: slapt-get (APT-like system for Slackware)
+slapt-get:
+slapt-get: slapt-get is an APT like system for Slackware package management. 
+slapt-get: It allows one to search slackware mirrors and third party sources 
+slapt-get: for packages, compare them with installed packages, install new 
+slapt-get: packages, or upgrade all installed packages. slapt-get is great for 
+slapt-get: scripting as well.
+slapt-get: 
+slapt-get: 
+slapt-get: http://software.jaos.org/
+slapt-get: 

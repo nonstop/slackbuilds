@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Slackware build script for cx_Oracle
+# Slackware build script for <transmission>
 
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
-PRGNAM=cx_Oracle
-VERSION=${VERSION:-5.0.1}
+PRGNAM=transmission
+VERSION=${VERSION:-1.61}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -29,7 +29,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+tar xvf $CWD/$PRGNAM-$VERSION.tar.bz2
 cd $PRGNAM-$VERSION
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
@@ -40,17 +40,31 @@ find . \
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
-python ./setup.py build
-python ./setup.py install --root=$PKG
+./configure \
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
+  --mandir=/usr/man \
+  --enable-daemon \
+  --enable-cli \
+  --enable-gtk \
+  --disable-largefile
+
+[ "$JOBS" ] && make -j$JOBS || make
+make install DESTDIR=$PKG
 
 ( cd $PKG
   find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
   find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 )
 
-mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION/html
-cp -a LICENSE.txt README.txt $PKG/usr/doc/$PRGNAM-$VERSION
-cp -r html/* $PKG/usr/doc/$PRGNAM-$VERSION/html
+( cd $PKG/usr/man
+  find . -type f -exec gzip -9 {} \;
+  for i in $( find . -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+)
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a NEWS INSTALL COPYING ChangeLog AUTHORS README $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
