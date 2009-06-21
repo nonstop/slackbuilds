@@ -1,0 +1,12 @@
+libxdg-basedir: libxdg-basedir
+libxdg-basedir: 
+libxdg-basedir: The XDG Base Directory Specification defines where should 
+libxdg-basedir: user files be looked for by defining one or more base 
+libxdg-basedir: directories relative in with they should be located.
+libxdg-basedir: This library implements functions to list the directories 
+libxdg-basedir: according to the specification and provides a few 
+libxdg-basedir: higher-level functions.
+libxdg-basedir: 
+libxdg-basedir: http://www.ohloh.net/p/libxdg-basedir/
+libxdg-basedir: 
+
