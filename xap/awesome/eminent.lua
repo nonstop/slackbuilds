@@ -49,9 +49,11 @@ local settings = {
     dialog_bg_focus = '#285577'
 }
 
+awful.hooks.user.create('newtag')
+
 -- Get current screen
 function get_screen()
-    local sel = client.focus_get()
+    local sel = client.focus
     local s
     if sel then
         s = sel.screen
@@ -89,6 +91,7 @@ function newtag(s, nb)
         t.mwfact = settings['default_mwfact']
 
         table.insert(p, t)
+        awful.hooks.user.call('newtag', i)
     end
 
     if nb == 1 then
@@ -242,11 +245,13 @@ function tag_toggle(n, s, abs)
     t.selected = not t.selected
 end
 
-function isoccupied(s, tag)
-    for k, c in pairs(client.get()) do
-        if c:istagged(tag) then
-            return true
-        end
+function isoccupied(s, t)
+    if not t or not t:clients() then
+        return false 
+    end
+
+    for c in pairs(t:clients()) do
+        return true
     end
 
     return false
