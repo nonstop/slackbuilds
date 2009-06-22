@@ -1,0 +1,19 @@
+      |-----handy-ruler------------------------------------------------------|
+imlib2: imlib2
+imlib2: 
+imlib2: This is the Imlib 2 library - a library that does image file loading
+imlib2: and saving as well as rendering, manipulation, arbitrary polygon 
+imlib2: support, etc.
+imlib2: It does ALL of these operations FAST. Imlib2 also tries to be highly
+imlib2: intelligent about doing them, so writing naive programs can be done
+imlib2: easily, without sacrificing speed.
+imlib2: 
+imlib2: http://web.enlightenment.org/
+imlib2: 
+
+
+
+
+
+
+
