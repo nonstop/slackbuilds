@@ -5,10 +5,10 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=libev
-VERSION=${VERSION:-3.43}
-ARCH=${ARCH:-i686}
+VERSION=${VERSION:-3.6}
+ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
-TAG=${TAG:-_evgeny}
+TAG=${TAG:-_SBo}
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/$TAG}
@@ -31,6 +31,7 @@ cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$VERSION
+[ "$TEST_BUILD" ] || chown -R root:root .
 find . \
  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
  -exec chmod 755 {} \; -o \
@@ -45,7 +46,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --localstatedir=/var \
   --mandir=/usr/man
 
-make
+[ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG
 
 ( cd $PKG
@@ -61,12 +62,12 @@ make install DESTDIR=$PKG
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a LICENSE README Changes $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
-cat $CWD/$PRGNAM.slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.slack-desc
+cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
 mkdir -p $PKG/install
-cat $CWD/$PRGNAM.slack-desc > $PKG/install/slack-desc
+cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-chown -R root:root .
+[ "$TEST_BUILD" ] || chown -R root:root .
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.tgz
 
