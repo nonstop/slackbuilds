@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=ghc
-VERSION=${VERSION:-6.10.1}
+VERSION=${VERSION:-6.10.4}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -21,7 +21,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xf $CWD/$PRGNAM-$VERSION-i386-unknown-linux.tar.bz2
+tar xf $CWD/$PRGNAM-$VERSION-i386-unknown-linux-n.tar.bz2
 cd $PRGNAM-$VERSION
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
@@ -37,10 +37,7 @@ patch -p0 Makefile < $CWD/ghc.Makefile.patch
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
-  --prefix=/usr \
-  --sysconfdir=/etc \
-  --localstatedir=/var \
-  --mandir=/usr/man
+  --prefix=/usr
 
 make install DESTDIR=$PKG
 

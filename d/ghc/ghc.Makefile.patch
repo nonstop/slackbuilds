@@ -1,3 +1,11 @@
+21,23c21,23
+< 	$(INSTALL_DIR) $(bindir)
+< 	$(INSTALL_DIR) $(datadir)
+< 	echo "[]" > $(datadir)/package.conf
+---
+> 	$(INSTALL_DIR) $(DESTDIR)$(bindir)
+> 	$(INSTALL_DIR) $(DESTDIR)$(datadir)
+> 	echo "[]" > $(DESTDIR)$(datadir)/package.conf
 35c35
 < 	$(INSTALL_DATA) $(INSTALL_OPTS) extra-gcc-opts $(libdir)
 ---

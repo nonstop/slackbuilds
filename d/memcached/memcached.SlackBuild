@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Slackware build script for icu
+# Slackware build script for <memcached>
 
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
-PRGNAM=icu
-VERSION=${VERSION:-4.2.1}
+PRGNAM=memcached
+VERSION=${VERSION:-1.4.1}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -28,11 +28,10 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $PRGNAM
-tar xvf $CWD/${PRGNAM}4c-`echo $VERSION | tr "." "_"`-src.tgz
-cd $PRGNAM
+rm -rf $PRGNAM-$VERSION
+tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+cd $PRGNAM-$VERSION
 [ "$TEST_BUILD" ] || chown -R root:root .
-cd source
 find . \
  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
  -exec chmod 755 {} \; -o \
@@ -45,9 +44,11 @@ CXXFLAGS="$SLKCFLAGS" \
   --prefix=/usr \
   --sysconfdir=/etc \
   --localstatedir=/var \
-  --mandir=/usr/man
+  --mandir=/usr/man \
+  --enable-static=no
 
 [ "$JOBS" ] && make -j$JOBS || make
+make docs
 make install DESTDIR=$PKG
 
 ( cd $PKG
@@ -61,8 +62,7 @@ make install DESTDIR=$PKG
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cd ..
-cp -a readme.html license.html unicode-license.txt $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a README scripts html $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
