@@ -42,9 +42,6 @@ CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 python setup.py build install --root=$PKG
 
-[ "$JOBS" ] && make -j$JOBS || make
-make install DESTDIR=$PKG
-
 ( cd $PKG
   find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
   find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
