@@ -1,0 +1,11 @@
+   |-----handy-ruler------------------------------------------------------|
+zmq: zmq (Zero Message Queues)
+zmq:
+zmq: ZeroMQ is an extensible messaging framework. It allows you to send
+zmq: messages though the network at hight data rates and low latencies.
+zmq: 
+zmq: http://www.zeromq.org/
+zmq: 
+ 
+
+
