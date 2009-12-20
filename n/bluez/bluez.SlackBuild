@@ -44,10 +44,12 @@ CXXFLAGS="$SLKCFLAGS" \
   --prefix=/usr \
   --sysconfdir=/etc \
   --localstatedir=/var \
-  --mandir=/usr/man
+  --mandir=/usr/man \
+  --enable-test
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG
+cp "test/simple-agent" $PKG/usr/bin/bluetooth-simple-agent
 
 ( cd $PKG
   find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
