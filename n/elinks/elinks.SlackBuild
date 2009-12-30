@@ -47,7 +47,6 @@ CXXFLAGS="$SLKCFLAGS" \
   --with-guile \
   --with-python \
   --with-perl \
-  --with-see \
   --enable-cgi \
   --enable-nntp \
   --enable-html-highlight \
