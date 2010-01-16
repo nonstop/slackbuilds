@@ -1,0 +1,11 @@
+    |-----handy-ruler------------------------------------------------------|
+acpi: acpi (command-line ACPI client)
+acpi:
+acpi: Attempts to replicate the functionality of the 'old' apm command
+acpi: on ACPI systems, including battery and thermal information.
+acpi: Does not support ACPI suspending, only displays information
+acpi: about ACPI devices. 
+acpi: 
+acpi: http://sourceforge.net/projects/acpiclient/
+acpi: 
+
