@@ -47,6 +47,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --localstatedir=/var \
   --mandir=/usr/man \
   --with-c \
+  --with-cpp \
   --with-python \
   --with-pgm \
   --with-queue \
