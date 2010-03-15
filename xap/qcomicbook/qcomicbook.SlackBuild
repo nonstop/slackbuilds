@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Slackware build script for elinks
+# Slackware build script for <qcomicbook>
 
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
-PRGNAM=elinks
-VERSION=${VERSION:-0.12pre2}
+PRGNAM=qcomicbook
+VERSION=${VERSION:-0.5.0}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -29,7 +29,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.bz2
+tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$VERSION
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
@@ -40,25 +40,7 @@ find . \
 
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
-./configure \
-  --prefix=/usr \
-  --sysconfdir=/etc \
-  --localstatedir=/var \
-  --with-guile \
-  --with-python \
-  --with-perl \
-  --enable-cgi \
-  --enable-nntp \
-  --enable-html-highlight \
-  --enable-finger \
-  --enable-bittorrent \
-  --enable-exmode \
-  --enable-88-colors \
-  --enable-256-colors \
-  --enable-true-color \
-  --enable-html-highlight \
-  --disable-ipv6 \
-  --disable-largefile
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DSYSCONFDIR=/etc .
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG
@@ -68,7 +50,6 @@ make install DESTDIR=$PKG
   find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 )
 
-mkdir -p $PKG/usr/man
 mv $PKG/usr/share/man $PKG/usr/man
 ( cd $PKG/usr/man
   find . -type f -exec gzip -9 {} \;
@@ -76,9 +57,7 @@ mv $PKG/usr/share/man $PKG/usr/man
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a ABOUT-NLS AUTHORS BUGS COPYING ChangeLog INSTALL NEWS SITES \
-  THANKS TODO doc/* $PKG/usr/doc/$PRGNAM-$VERSION
-rm -rf $PKG/usr/doc/$PRGNAM-$VERSION/man
+cp -a README COPYING THANKS TODO NEWS ChangeLog AUTHORS $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
