@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Slackware build script for <cmus>
+# Slackware build script for <stalonetray>
 
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
-PRGNAM=cmus
-VERSION=${VERSION:-v2.3.1}
+PRGNAM=stalonetray
+VERSION=${VERSION:-0.8.0}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -41,10 +41,10 @@ find . \
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
-  prefix=/usr \
-  mandir=/usr/man \
-  exampledir="/usr/doc/$PRGNAM-$VERSION/examples" \
-  DEBUG=0
+  --prefix=/usr \
+  --sysconfdir=/etc \
+  --localstatedir=/var \
+  --mandir=/usr/man
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG
@@ -60,7 +60,7 @@ make install DESTDIR=$PKG
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a AUTHORS COPYING README TODO $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a AUTHORS ChangeLog COPYING NEWS README TODO stalonetrayrc.sample $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
