@@ -62,6 +62,7 @@ CFLAGS="$SLKCFLAGS" \
     --with-x \
     --enable-multibyte \
     --enable-fontset \
+    --enable-cscope \
     --enable-gui=gtk2  \
     --enable-pythoninterp \
     --enable-tclinterp \
