@@ -1,0 +1,14 @@
+    |-----handy-ruler------------------------------------------------------|
+btpd: btpd (BitTorrent client daemon)
+btpd:
+btpd: BTPD is a bittorrent client consisting of a daemon and client commands
+btpd: which can be used to read and/or manipulate the daemon state. 
+btpd: The daemon is capable of running several torrents simultaneously 
+btpd: and only uses one tcp port. It's fairly low on resource usage 
+btpd: and should be perfect for file distribution sites. 
+btpd: Efficient downloads and ease of use makes this client a good choice 
+btpd: for the casual user as well.
+btpd: 
+btpd: Homepage: http://www.murmeldjur.se/btpd/
+btpd: 
+
