@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# Slackware build script for supervisor
+# Written by Evgeny Ratnikov
+
+
+PRGNAM=supervisor
+VERSION=3.0a6
+ARCH=noarch
+BUILD=${BUILD:-1}
+TAG=${TAG:-_evgeny}
+CWD=$(pwd)
+TMP=${TMP:-/tmp/$TAG}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+set -e
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+rm -rf $PRGNAM-$VERSION
+tar -xzvf $CWD/$PRGNAM-$VERSION.tar.gz
+cp $CWD/setuptools-0.6c7-py2.5.egg $PRGNAM-$VERSION
+cd $PRGNAM-$VERSION
+# patch fixes installation of docs
+patch -p0 setup.py < $CWD/supervisor_setup.patch
+chmod -R u+w,go+r-w,a-s .
+
+python ./setup.py build
+python ./setup.py install --root=$PKG --prefix=/usr
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+cat $CWD/$PRGNAM.slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.slack-desc
+
+mkdir -p $PKG/install
+cat $CWD/$PRGNAM.slack-desc > $PKG/install/slack-desc
+
+cd $PKG
+chown -R root:root .
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.tgz
+

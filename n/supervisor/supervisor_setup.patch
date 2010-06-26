@@ -1,0 +1,4 @@
+76c76
+<     data_files=[ ('doc', [
+---
+>     data_files=[ ('doc/supervisor-%s' % supervisor_version, [

@@ -1,0 +1,16 @@
+          |-----handy-ruler------------------------------------------------------|
+supervisor: supervisor (monitoring tool)
+supervisor: 
+supervisor: 
+supervisor: Supervisor is a client/server system that allows its users to monitor 
+supervisor: and control a number of processes on UNIX-like operating systems.
+supervisor: It shares some of the same goals of programs like launchd, 
+supervisor: daemontools, and runit. Unlike some of these programs, it is not meant 
+supervisor: to be run as a substitute for init as "process id 1". Instead it is 
+supervisor: meant to be used to control processes related to a project 
+supervisor: or a customer, and is meant to start like any other program 
+supervisor: at boot time.
+supervisor: 
+supervisor: Homepage: http://supervisord.org/
+supervisor: 
+
