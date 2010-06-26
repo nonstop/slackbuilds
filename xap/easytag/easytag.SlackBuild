@@ -1,0 +1,74 @@
+#!/bin/sh
+
+# Slackware build script for easytag
+
+PRGNAM=easytag
+VERSION=2.1
+ARCH=${ARCH:-i486}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_evgeny}
+CWD=$(pwd)
+TMP=${TMP:-/tmp/$TAG}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+DOCS="COPYING ChangeLog* INSTALL README TODO USERS-GUIDE THANKS \
+  doc/EasyTAG_Documentation.html doc/id3 doc/vorbis"
+
+case "$ARCH" in
+  i486)      SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+             ;;
+  i686)      SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+             ;;
+  s390)      SLKCFLAGS="-O2"
+             ;;
+  powerpc)   SLKCFLAGS="-O2"
+             ;;
+  x86_64)    SLKCFLAGS="-O2 -fPIC"
+             SLKLDFLAGS="-L/usr/lib64"; LIBDIRSUFFIX="64"
+             ;;
+  athlon-xp) SLKCFLAGS="-march=athlon-xp -O3 -pipe -fomit-frame-pointer"
+             ;;
+esac
+
+set -e
+
+rm -rf $PKG
+mkdir -p $TMP $PKG $OUTPUT
+cd $TMP
+rm -rf $PRGNAM-$VERSION
+tar -xjvf $CWD/$PRGNAM-$VERSION.tar.bz2
+cd $PRGNAM-$VERSION
+chmod -R u+w,go+r-w,a-s .
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+./configure \
+  --prefix=/usr \
+  --localstatedir=/var \
+  --sysconfdir=/etc \
+  --enable-shared=yes \
+  --enable-static=no \
+  --disable-debug
+
+make
+make install-strip DESTDIR=$PKG
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a $DOCS  $PKG/usr/doc/$PRGNAM-$VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+cat $CWD/$PRGNAM.slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.slack-desc
+# We don't need this twice
+rm $PKG/usr/share/easytag/ChangeLog
+
+( cd $PKG/usr/man
+  find . -type f -exec gzip -9 {} \;
+  for i in `find . -type l` ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+)
+
+mkdir -p $PKG/install
+cat $CWD/$PRGNAM.slack-desc > $PKG/install/slack-desc
+
+cd $PKG
+chown -R root:root .
+/sbin/makepkg -p -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.tgz
