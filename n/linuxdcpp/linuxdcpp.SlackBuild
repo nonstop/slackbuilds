@@ -1,0 +1,99 @@
+#!/bin/sh
+# Heavily based on the Slackware 12.0 SlackBuild
+# http://linuxdcpp.berlios.de/
+# Packager Michelino Chionchio - Thanks to www.slacky.eu
+
+CWD=`pwd`
+TAG='_evgeny'
+TMP=${TMP:-/tmp/$TAG}
+PKG=$TMP/package-linuxdcpp
+NAME=linuxdcpp
+VERSION=1.0.1
+ARCH=${ARCH:-i486}
+BUILD=1
+
+if [ "$ARCH" = "i386" ]; then
+  SLKCFLAGS="-O2 -march=i386 -mcpu=i686"
+elif [ "$ARCH" = "i486" ]; then
+  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+elif [ "$ARCH" = "i686" ]; then
+  SLKCFLAGS="-O2"
+elif [ "$ARCH" = "s390" ]; then
+  SLKCFLAGS="-O2"
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2"
+fi
+
+if [ ! -d $TMP ]; then
+ mkdir -p $TMP
+fi
+if [ ! -d $PKG ]; then
+ mkdir -p $PKG
+fi
+
+cd $TMP
+tar xjvf $CWD/$NAME-$VERSION.tar.bz2
+cd $NAME-$VERSION
+
+sed -i s/"ICONV_CONST char"/"char"/ client/Text.cpp
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKCFLAGS" \
+scons PREFIX="/usr" || exit 1
+
+mkdir -p $PKG/usr/bin/
+cp -a linuxdcpp $PKG/usr/bin/
+
+mkdir -p $PKG/usr/share/linuxdcpp/glade/
+cp -a glade/* $PKG/usr/share/linuxdcpp/glade/
+
+mkdir -p $PKG/usr/share/linuxdcpp/pixmaps/
+cp -a pixmaps/* $PKG/usr/share/linuxdcpp/pixmaps/
+
+mkdir -p $PKG/usr/doc/$NAME-$VERSION
+cp Changelog.txt Credits.txt License.txt Readme.txt $PKG/usr/doc/$NAME-$VERSION
+
+cd $PKG
+chown -R root:root .
+find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+find . | xargs file | grep "current ar archive" | cut -f 1 -d : | xargs strip -g 2> /dev/null
+
+mkdir -p $PKG/usr/share/applications/
+
+cat << EOF > $PKG/usr/share/applications/linuxdcpp.desktop
+[Desktop Entry]
+Name=LinuxDC++
+Comment=DC++ linux client
+Exec=linuxdcpp
+Icon=/usr/share/linuxdcpp/pixmaps/linuxdcpp-icon.png
+Terminal=false
+Type=Application
+Categories=Application;Network;
+EOF
+
+mkdir -p $PKG/install
+
+        echo "if [ -x /usr/bin/update-mime-database ]; then
+  /usr/bin/update-mime-database /usr/share/mime &> /dev/null
+fi" >> $PKG/install/doinst.sh
+        echo "" >> $PKG/install/doinst.sh
+        echo "if [ -x /usr/bin/update-desktop-database ]; then
+  /usr/bin/update-desktop-database &> /dev/null
+fi" >> $PKG/install/doinst.sh
+        echo "" >> $PKG/install/doinst.sh
+        echo "if [ -x /usr/bin/gtk-update-icon-cache ]; then
+  /usr/bin/gtk-update-icon-cache  -f -q /usr/share/icons/hicolor &> /dev/null
+fi" >> $PKG/install/doinst.sh
+        echo "" >> $PKG/install/doinst.sh
+
+
+cat $CWD/$NAME.slack-desc > $PKG/usr/doc/$NAME-$VERSION/$NAME.slack-desc
+cat $CWD/$NAME.SlackBuild > $PKG/usr/doc/$NAME-$VERSION/$NAME.SlackBuild
+
+cat $CWD/$NAME.slack-desc > $PKG/install/slack-desc
+
+requiredbuilder -v -y -s $CWD $PKG
+makepkg -l y -c n $CWD/$NAME-$VERSION-$ARCH-$BUILD$TAG.tgz
+

@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in. You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+         |-----handy-ruler----------------------------------------------------|
+linuxdcpp: linuxdcpp
+linuxdcpp:
+linuxdcpp: linuxdcpp is a project to port the DC++ direct connect client to
+linuxdcpp: Linu, or to any POSIX-compliant Unix really, but since the Unix 
+linuxdcpp: developers have access to is Linux this is the only one supported 
+linuxdcpp: at the moment. 
+linuxdcpp: http://linuxdcpp.berlios.de/
+linuxdcpp: 
+linuxdcpp: 
+linuxdcpp:  Packaged by Michelino Chionchio - Thanks to www.slacky.eu
+linuxdcpp: 
