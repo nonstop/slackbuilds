@@ -1,0 +1,11 @@
+       |-----handy-ruler------------------------------------------------------|
+libsoup: libsoup (HTTP client/server library for GNOME)
+libsoup:
+libsoup: libsoup is an HTTP client/server library for GNOME.
+libsoup: It uses GObjects and the glib main loop, to integrate 
+libsoup: well with GNOME applications, and also has a synchronous 
+libsoup: API, for use in threaded applications.
+libsoup: 
+libsoup: http://live.gnome.org/LibSoup
+libsoup:
+
