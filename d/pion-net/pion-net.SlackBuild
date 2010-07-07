@@ -1,12 +1,11 @@
 #!/bin/sh
 
-# Slackware build script for <llvm>
+# Slackware build script for <pion-net>
 
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
-PRGNAM=llvm
-PRGNAM2=clang
-VERSION=${VERSION:-2.7}
+PRGNAM=pion-net
+VERSION=${VERSION:-3.0.13}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -30,9 +29,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tgz
-tar xvf $CWD/$PRGNAM2-$VERSION.tgz
-mv $PRGNAM2-$VERSION $PRGNAM-$VERSION/tools/clang
+tar xvf $CWD/$PRGNAM-$VERSION.tar.bz2
 cd $PRGNAM-$VERSION
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
@@ -48,9 +45,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --sysconfdir=/etc \
   --localstatedir=/var \
   --mandir=/usr/man \
-  --enable-optimizations \
-  --enable-assertions \
-  --enable-pic
+  --enable-doxygen-man
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG
@@ -60,16 +55,8 @@ make install DESTDIR=$PKG
   find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 )
 
-mv $PKG/usr/share/man $PKG/usr/man
-( cd $PKG/usr/man
-  find . -type f -exec gzip -9 {} \;
-  for i in $( find . -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
-)
-
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a CREDITS* LICENSE* README* $PKG/usr/doc/$PRGNAM-$VERSION
-mv $PKG/usr/docs/llvm/* $PKG/usr/doc/$PRGNAM-$VERSION
-rm -rf $PKG/usr/docs
+cp -a AUTHORS COPYING INSTALL NEWS README TODO $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
