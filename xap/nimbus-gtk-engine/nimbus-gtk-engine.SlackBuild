@@ -6,7 +6,7 @@
 
 PRGNAM=nimbus
 PKGNAM=nimbus-gtk-engine
-VERSION=${VERSION:-0.1.2}
+VERSION=${VERSION:-0.1.4}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
