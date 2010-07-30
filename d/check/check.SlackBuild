@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=check
-VERSION=${VERSION:-0.9.5}
+VERSION=${VERSION:-0.9.8}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -54,8 +54,8 @@ make install DESTDIR=$PKG
   find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 )
 
-rm -f $PKG/usr/info/dir
-gzip -9 $PKG/usr/info/*.info*
+rm -f $PKG/usr/share/info/dir
+gzip -9 $PKG/usr/share/info/*.info*
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 mv $PKG/usr/share/doc/$PRGNAM $PKG/usr/doc/$PRGNAM-$VERSION
