@@ -3,8 +3,8 @@
 # Slackware build script for vim
 
 PRGNAM=vim
-VERSION=7.2
-SRCDIR=vim72
+VERSION=7.3
+SRCDIR=vim73
 ARCH=${ARCH:-i686}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_evgeny}
@@ -30,8 +30,8 @@ mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xvf $CWD/$PRGNAM-$VERSION.tar.bz2
-tar xvf $CWD/$PRGNAM-$VERSION-extra.tar.gz
-tar xvf $CWD/$PRGNAM-$VERSION-lang.tar.gz
+#tar xvf $CWD/$PRGNAM-$VERSION-extra.tar.gz
+#tar xvf $CWD/$PRGNAM-$VERSION-lang.tar.gz
 cd $SRCDIR
 
 # whether have patches - apply them and change version
@@ -65,7 +65,6 @@ CFLAGS="$SLKCFLAGS" \
     --enable-cscope \
     --enable-gui=gtk2  \
     --enable-pythoninterp \
-    --enable-tclinterp \
     --disable-netbeans
 make -j4
 make install DESTDIR=$PKG
