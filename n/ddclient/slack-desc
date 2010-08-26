@@ -1,0 +1,16 @@
+        |-----handy-ruler------------------------------------------------------|
+ddclient: ddclient (Perl based DynDNS update client)
+ddclient: 
+ddclient: DDclient is a small but full featured Perl client used to update 
+ddclient: dynamic DNS entries for accounts on Dynamic DNS Network Services 
+ddclient: free DNS service. It has the capability to update more than only 
+ddclient: dyndns and it can fetch your WAN-ipaddress on a few different ways.
+ddclient: 
+ddclient: Supported features include: operating as a daemon, manual and 
+ddclient: automatic updates, static and dynamic updates, optimized updates for
+ddclient: multiple addresses, MX, wildcards, abuse avoidance, retrying failed 
+ddclient: updates, and sending update status to syslog and through e-mail.
+ddclient: 
+ddclient: http://sourceforge.net/apps/trac/ddclient
+ddclient: 
+
