@@ -30,6 +30,7 @@ cd $TMP
 rm -rf ${PRGNAM}_$VERSION
 tar xvf $CWD/${PRGNAM}_$VERSION.tar.bz2
 cd ${PRGNAM}_$VERSION
+BOOST_ROOT=$TMP/${PRGNAM}_$VERSION sh ./tools/boostbook/setup_boostbook.sh
 
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
@@ -50,12 +51,12 @@ PYTHON_FLAGS="-sPYTHON_ROOT=/usr -sPYTHON_VERSION=$PYTHON_VERSION"
 
 # First build bjam, the boost build system:
 cd tools/jam/src
-  CFLAGS="$SLKCFLAGS -fno-strict-aliasing" CC=gcc ./build.sh cc
+CFLAGS="$SLKCFLAGS -fno-strict-aliasing" CC=gcc ./build.sh cc
 cd -
 
 BJAM=$(find tools/jam/src/ -name bjam -a -type f)
 
-mkdir obj
+mkdir -p obj
 
 $BJAM \
   release \
@@ -76,6 +77,8 @@ $BJAM \
 
 mkdir -p $PKG/usr/{lib,include}
 
+$BJAM html
+
 $BJAM \
   release \
   "-sEXPAT_INCLUDE=/usr/include" \
@@ -94,6 +97,7 @@ $BJAM \
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$PKG_VERSION
+cp -ar doc/html $PKG/usr/doc/$PRGNAM-$PKG_VERSION
 cp -a LICENSE_1_0.txt INSTALL $PKG/usr/doc/$PRGNAM-$PKG_VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$PKG_VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$PKG_VERSION/slack-desc
