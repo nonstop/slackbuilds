@@ -30,14 +30,13 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-# docs/ext-core/Makefile is missing DESTDIR
-patch -p0 < $CWD/docs_ext-core_Makefile.patch
-patch -p0 Makefile < $CWD/ghc.Makefile.patch
-
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
-  --prefix=/usr
+  --prefix=/usr \
+  --mandir=/usr/man \
+  --docdir=/usr/doc/$PRGNAM-$VERSION \
+  --libdir=/usr/lib${LIBDIRSUFFIX}
 
 make install DESTDIR=$PKG
 
@@ -46,17 +45,15 @@ make install DESTDIR=$PKG
   find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 )
 
-mv $PKG/usr/share/man $PKG/usr/man
 ( cd $PKG/usr/man
   find . -type f -exec gzip -9 {} \;
   for i in $( find . -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-mv $PKG/usr/share/doc/$PRGNAM $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a INSTALL LICENSE README $PKG/usr/doc/$PRGNAM-$VERSION
 ( cd $PKG/usr/doc ; ln -s ghc-$VERSION ghc )
 rm -rf $PKG/usr/share
-cp -a ANNOUNCE INSTALL LICENSE README $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
