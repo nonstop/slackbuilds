@@ -67,7 +67,9 @@ if [ -d $PKG/usr/man ]; then
           ln -s $( readlink $eachpage ).gz $eachpage.gz
           rm $eachpage
         done
-        gzip -9 *.*
+        for eachpage in $( find . -type f) ; do
+          gzip -9 $eachpage
+        done
       )
     done
   )
