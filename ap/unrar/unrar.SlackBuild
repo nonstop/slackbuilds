@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=unrar
-VERSION=${VERSION:-3.7.8}
+VERSION=${VERSION:-4.0.2}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -47,7 +47,7 @@ install -D -m 644 $CWD/unrar.1.gz $PKG/usr/man/man1/unrar.1.gz
 
 ( cd $PKG
   find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
-  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
