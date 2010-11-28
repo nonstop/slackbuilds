@@ -46,7 +46,8 @@ CXXFLAGS="$SLKCFLAGS" \
     --sysconfdir=/etc \
     --mandir=/usr/man \
     --docdir=/usr/doc/vlc-$VERSION \
-    --localstatedir=/var
+    --localstatedir=/var \
+    --disable-lua
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG
