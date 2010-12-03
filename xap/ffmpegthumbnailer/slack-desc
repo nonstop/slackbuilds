@@ -1,0 +1,13 @@
+                 |-----handy-ruler------------------------------------------------------|
+ffmpegthumbnailer: ffmpegthumbnailer (lightweight video thumbnailer)
+ffmpegthumbnailer:
+ffmpegthumbnailer: This video thumbnailer can be used to create thumbnails for your
+ffmpegthumbnailer: video files. The thumbnailer uses ffmpeg to decode frames from the
+ffmpegthumbnailer: video files, so supported videoformats depend on the configuration
+ffmpegthumbnailer: flags of ffmpeg.
+ffmpegthumbnailer: This thumbnailer was designed to be as fast and lightweight as
+ffmpegthumbnailer: possible. The only dependencies are ffmpeg, libpng and libjpeg. 
+ffmpegthumbnailer:
+ffmpegthumbnailer: http://code.google.com/p/ffmpegthumbnailer/
+ffmpegthumbnailer: 
+
