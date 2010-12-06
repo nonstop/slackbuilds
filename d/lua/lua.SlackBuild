@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=lua
-VERSION=${VERSION:-5.1.3}
+VERSION=${VERSION:-5.1.4}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -31,6 +31,8 @@ cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$VERSION
+patch -p0 < $CWD/lua.patch
+
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
@@ -45,8 +47,11 @@ make install INSTALL_TOP=$PKG/usr
 
 ( cd $PKG
   find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
-  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 )
+
+mkdir -p $PKG/usr/lib/pkgconfig
+find . -name lua.pc -exec cp \{\} $PKG/usr/lib/pkgconfig \;
 
 ( cd $PKG/usr/man
   find . -type f -exec gzip -9 {} \;

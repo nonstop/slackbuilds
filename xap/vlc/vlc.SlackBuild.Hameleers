@@ -1,0 +1,3298 @@
+#!/bin/sh
+# $Id: vlc.SlackBuild,v 1.61 2010/08/23 08:46:57 root Exp root $
+# Copyright (c) 2007,2008,2009,2010  Eric Hameleers, Eindhoven, Netherlands
+#
+#   Permission to use, copy, modify, and distribute this software for
+#   any purpose with or without fee is hereby granted, provided that
+#   the above copyright notice and this permission notice appear in all
+#   copies.
+#
+#   THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+#   WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+#   IN NO EVENT SHALL THE AUTHORS AND COPYRIGHT HOLDERS AND THEIR
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+#   USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#   ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+#   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+#   OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+#   SUCH DAMAGE.
+# -----------------------------------------------------------------------------
+#
+# Slackware SlackBuild script 
+# ===========================
+# By:         Eric Hameleers <alien@slackware.com>
+# For:        vlc
+# Descr:      multimedia player for various audio and video formats
+# URL:        http://www.videolan.org/vlc/
+# Needs:      libdvdcss for playing encrypted DVDs
+# Changelog: 
+# 0.8.6a-1:   15/Mar/2007 by Eric Hameleers <alien@slackware.com>
+#             * Initial build.
+# 0.8.6b-1:   25/apr/2007 by Eric Hameleers <alien@slackware.com>
+#             * Update.
+# 0.8.6c-1:   04/sep/2007 by Eric Hameleers <alien@slackware.com>
+#             * Update. Allow vlc to be built without patented code (lame/amr).
+# 0.8.6d-1:   12/dec/2007 by Eric Hameleers <alien@slackware.com>
+#             * Update with a vulnerability bugfix. All external libraries
+#               were updated to their most recent release.
+#               This pkg adds support for firewire cameras, DV and DVB cards.
+#               AMR audio codec is not supported in this build (I could not
+#               create a vlc binary successfully).
+#               Again, the resulting binary package requires no additional
+#               non-Slackware packages, except for libdvdcss in case you want
+#               to watch an encrypted DVD.
+# 0.8.6d-2:   29/jan/2008 by Eric Hameleers <alien@slackware.com>
+#             * Disable building AMR. The 0.8.6d official release does
+#               not have support for AMR audio codec re-added yet.
+#               Also, add the AAC en/decoder to the PATENTED software.
+#               Build with dll loader support only on 32bit platform.
+# 0.8.6e-1:   02/mar/2008 by Eric Hameleers <alien@slackware.com>
+#             * New release fixes security issues.
+# 0.8.6e-2:   23/mar/2008 by Eric Hameleers <alien@slackware.com>
+#             * Update libebml; new ffmpeg,live555 snapshots
+# 0.8.6f-1:   03/apr/2008 by Eric Hameleers <alien@slackware.com>
+#             * New release (bugfixes). Also updated the snapshot for ffmpeg
+# 0.8.6f-2:   03/apr/2008 by Eric Hameleers <alien@slackware.com>
+#             * Updated the snapshot for ffmpeg
+# 0.8.6g-1:   31/may/2008 by Eric Hameleers <alien@slackware.com>
+#             * New release. Updated the snapshot for ffmpeg and live555,
+#               updated libtheora.
+# 0.8.6h-1:   10/jun/2008 by Eric Hameleers <alien@slackware.com>
+#             * New release. Repaired the broken matroska support (thanks to
+#               Thomas Morper who submitted a fix for the SlackBuild.
+# 0.8.6h-2:   15/jun/2008 by Eric Hameleers <alien@slackware.com>
+#             * Fixed the broken DTS audio codec support (did not play
+#               6 channel sound here)
+# 0.8.6h-3:   17/jun/2008 by Eric Hameleers <alien@slackware.com>
+#             * Added Universal Plug'n'Play (upnp) client support.
+#               Updated the live555 tarball to 20080605.
+#               Updated the x264 snapshot- this now requires the yasm assembler
+#               to be installed in order to compile successfully. If you don't
+#               have/want that, set the variable REQUIRE_YASM to a value of "NO"
+#               (see further down) so that the script will fall back to an older
+#               x264 snapshot that does not require yasm to compile. Updated
+#               libcdio to 0.80. Re-introduce AMR audio encoding to the package.
+# 0.8.6i-1:   09/jul/2008 by Eric Hameleers <alien@slackware.com>
+#             * New release. Also updated to the new lame-3.98.
+# 0.9.1-1:    31/aug/2008 by Eric Hameleers <alien@slackware.com>
+#             * The first in a new series of 0.9.x - these are source-only
+#               releases for now, meaning that the developers are not yet
+#               convinced 0.9.x is ready to replace 0.8.x.
+#               Note that the vlc 0.9 releases fail to compile a static vlc.
+#               According to the developers whis will not be fixed. Still, this
+#               vlc package is without external dependencies as always ;-)
+#               Updated lame to v3.89, speex to 1.2rc1 and libmpeg2 to 1.5.1.
+#               Updated snapshots for ffmpeg to r14080; live555 to 2008.07.25;
+#               started using libdvdread/libdvdnav releases from mplayerhq.hu.
+#               For dirac video I now use the far better schroedinger instead
+#               of the reference 'dirac' implementation.
+#               I added documentation for all the libraries which I include.
+#               Notes for package (re)builders:
+#               The SlackBuild will by default use a static version of the Qt4
+#               library. If you already have Qt4 installed, you may choose to
+#               build vlc against that dynamic library; in that case run:
+#                 # STATIC_QT4=NO ./vlc.SlackBuild
+#               to build your vlc package.
+#               If you already have ffmpeg installed and want to use that, run
+#                 # STATIC_FFMPEG=NO ./vlc.SlackBuild
+#               to build your vlc package.
+#               Of course, if you have both QT4 and ffmpeg already available,
+#               you can combine the above two commands to:
+#                 # STATIC_QT4=NO STATIC_FFMPEG=NO ./vlc.SlackBuild
+#               Lastly, it is worth noting that building any recent X264
+#               library fails with Slackware 12.1 (and earlier)'s nasm.
+#               Either install yasm, or let the script automatically fall back
+#               to an older version of the X264 like this:
+#                 # REQUIRE_YASM=NO ./vlc.SlackBuild
+# 0.9.2-1:    10/sep/2008 by Eric Hameleers <alien@slackware.com>
+#             * Updated to 0.9.2
+# 0.9.3-1:    30/sep/2008 by Eric Hameleers <alien@slackware.com>
+#             * Updated to 0.9.3
+#               Fixed video playback thanks to phobos3576 of the slacky.eu
+#               forum for finding the fix and Andrea Tornese for reporting it.
+# 0.9.4-1:    07/oct/2008 by Eric Hameleers <alien@slackware.com>
+#             * Updated to 0.9.4. Added libass to render 'formatted'
+#               subtitles. Updated live555 to 2008.09.02. Updated the ffmpeg
+#               snapshot to 20081007. Now default to using dynamically linked
+#               QT4 (requires that you install a QT4 package yourself
+#               prior to compiling VLC!)
+# 0.9.5-1:    26/oct/2008 by Eric Hameleers <alien@slackware.com>
+#             * Updated to 0.9.5. New snapshots for ffmpeg x264 added. QT4
+#               compiled statically again because VLC is sensitive to the
+#               version it builds against.
+# 0.9.5-2:    29/oct/2008 by Eric Hameleers <alien@slackware.com>
+#             * Re-enable embedded video display. Thanks to Thomas Morper who
+#               verified that this works reliably with vlc-0.9.5 and qt-4.4.3 !
+# 0.9.5-3:    05/nov/2008 by Eric Hameleers <alien@slackware.com>
+#             * Updated libtheora to 1.0 and libcdio to 0.81
+# 0.9.6-1:    08/nov/2008 by Eric Hameleers <alien@slackware.com>
+#             * New release. Updated ffmpeg/x264 snapshots.
+# 0.9.8-1:    02/dec/2008 by Eric Hameleers <alien@slackware.com>
+#             * New release. Updated ffmpeg/x264/live555 versions. Added midi
+#               playback support through fluidsynth
+# 0.9.8a-1:   04/dec/2008 by Eric Hameleers <alien@slackware.com>
+#             * VLC bugfix release... also took the opportunity to fix *my*
+#               broken build of the dca and fluidsynth modules.
+# 0.9.8a-2:   04/dec/2008 by Eric Hameleers <alien@slackware.com>
+#             * Updated ffmpeg/x264 snapshots, and re-adding firewire support
+# 0.9.8a-3:   28/dec/2008 by Eric Hameleers <alien@slackware.com>
+#             * Updated ffmpeg/x264 snapshots, made it build on x86_64 with the
+#               help of Attila Craciun.
+# 20090307-1: 07/mar/2009 by Eric Hameleers <alien@slackware.com>
+#             * Updated ffmpeg/x264/live55 snapshots, fix default font for
+#               x86_64, fix DTS audio decoding on x86_64
+# 0.9.9.rc2-1:18/mar/2009 by Eric Hameleers <alien@slackware.com>
+#             * Building the first release candidate.
+# 0.9.9.rc2-2:27/mar/2009 by Eric Hameleers <alien@slackware.com>
+#             * Fix AAC decoding by removing "--with-drm"
+# 0.9.9-1:    27/mar/2009 by Eric Hameleers <alien@slackware.com>
+#             * Try to fix ffmeg video decoding as well as upgrade to 0.9.9;
+#               apply several fixes taken from 1.0.0-git to fix x264 encoding.
+# 1.0.0.pre2-1: 04/may/2009 by Eric Hameleers <alien@slackware.com>
+#             * This is 1.0.0-pre2. I like it much more than the
+#               'stable' 0.9.x. Furthermore, DVD playback was broken in
+#               my 0.9.9 package, so I needed to release an update.
+# 1.0.0.rc1-1: 11/may/2009 by Eric Hameleers <alien@slackware.com>
+#             * The first release candidate for 1.0.0
+# 1.0.0.rc2-1: 26/may/2009 by Eric Hameleers <alien@slackware.com>
+#             * The second release candidate for 1.0.0
+# 1.0.0.rc3-1: 09/jun/2009 by Eric Hameleers <alien@slackware.com>
+#             * The third release candidate for 1.0.0
+# 1.0.0.rc4-1: 18/jun/2009 by Eric Hameleers <alien@slackware.com>
+#             * The fourth release candidate for 1.0.0.
+#               Also updated live plugin to 2009.06.02
+# 1.0.0-1:    06/jul/2009 by Eric Hameleers <alien@slackware.com>
+#             * VLC 1.0.0 has been released!
+# 1.0.1-1:    28/jul/2009 by Eric Hameleers <alien@slackware.com>
+#             * An update that fixes a realrtsp vulnerability. Also updated
+#               x264/live555 snapshots and added support for lua playlist,
+#               metafetcher and interface plugins. By default, this script
+#               no longer links Qt4 statically and instead links against an
+#               already installed Qt libray.
+# 1.0.1-2:    30/jul/2009 by Eric Hameleers <alien@slackware.com>
+#             * Fix the swscale plugin
+# 1.0.2-1:    19/sep/2009 by Eric Hameleers <alien@slackware.com>
+#             * Update.
+# 1.0.3-1:    31/oct/2009 by Eric Hameleers <alien@slackware.com>
+#             * Update. New version of the theora encoder.
+#               Other upgrades: libkate, schroedinger.
+#               Downgraded libraw1394 to 1.2.0 which is the last 1.x version
+#               found on sourceforge, now that the original linux1394.org site
+#               has disappeared (using new download URL too).
+# 1.0.3-2:    02/nov/2009 by Eric Hameleers <alien@slackware.com>
+#             * Try to fix broken firewire support (libraw1394). Allow root to
+#               run vlc.
+# 1.0.3-3:    13/nov/2009 by Eric Hameleers <alien@slackware.com>
+#             * Fix the broken fullscreen in KDE-4.3.3; added a newer snapshot
+#               for live555 and x264.
+# 1.0.3-4:    08/dec/2009 by Eric Hameleers <alien@slackware.com>
+#             * Upgrade internal ffmpeg to latest SVN, and update the x86_64
+#               assembler patch for ffmpeg to enable mmx/sse support which
+#               (according to Thomas Morper who supplied the updated patch)
+#               fixes choppy HD video playback. Disabled vdpau support because
+#               that will not compile unless you have NVIDIA binary drivers
+#               installed.
+#               Also updated live555/x264 to their latest snapshots.
+#               Switched to the GPL'ed opencore AMR codec (spin-off from
+#               Google Android project). 
+# 1.0.3-5:    10/dec/2009 by Eric Hameleers <alien@slackware.com>
+#             * Make the dc1394 plugin work by patching VLC to use the new API.
+# 1.0.4-1:    11/dec/2009 by Eric Hameleers <alien@slackware.com>
+#             * New release. The ffmpeg/x264 snapshots were updated.
+# 20091228-1: 28/dec/2009 by Eric Hameleers <alien@slackware.com>
+#             * Test of git snapshot (1.1.git)
+# 1.1.0.pre3-1: 01/may/2010 by Eric Hameleers <alien@slackware.com>
+#             * Update to git snapshot 1.1.0.pre3. Also updated ffmpeg, live555
+#               and x264 snapshots. Fixed the ffmpeg checkout so that we can
+#               control what version of swscale gets used. Fixed the checkout
+#               of vlc so that we can get a snapshot from any date,
+#               not just HEAD. Updated fluidsynth plugin to 1.1.1. Updated
+#               libdvbpci plugin to 0.1.7.
+#               Updated to schroedinger 1.0.9 which is finally on par with
+#               the dirac codec's speed and quality. Added projectM
+#               visualisation plugin and re-enabled ggi plugin.
+#               Added support for VAAPI, i.e. GPU-accelerated playback of H264.
+#               Fixed the qt4 build so that it is really isolated from any
+#               pre-existing qt4 installation on your computer. Used an
+#               internal xulrunner sdk to build the mozilla-plugin.
+#               Copy all patches used by this script into the package's
+#               documentation directory.
+#               If you want to control what version of VLC to checkout of GIT,
+#               you should use the VERSION variable (older script used SRCVER).
+# 1.1.0.pre4-1: 22/may/2010 by Eric Hameleers <alien@slackware.com>
+#             * Update to git snapshot 1.1.0.pre4. Also updated ffmpeg and x264
+#               snapshots. Changed from libv4l to v4l-utils.
+# 20100523-1: 23/may/2010 by Eric Hameleers <alien@slackware.com>
+#             * Update VLC snapshot to one that supports the new Google VP8.
+#               Also apply webm patches to the ffmpeg snapshot. VLC can now
+#               playback .webm files (but not encode yet as far as I know).
+# 1.1.0.rc-1: 24/may/2010 by Eric Hameleers <alien@slackware.com>
+#             * Update to the release candidate for 1.1.0. Fix VAAPI support
+#               (now depends on external packages to supply the actual harware
+#               drivers: libva (intel, als needed for nvidia & ati), and one of
+#               vdpau-video (nvidia) or xvba-video (ati).
+# 1.1.0.rc-2: 25/may/2010 by Eric Hameleers <alien@slackware.com>
+#             * Upgrade to final release candidate (yes, sounds weird) and fix
+#               a bug in displaying DVD menus
+# 1.1.0.rc2-1:03/jun/2010 by Eric Hameleers <alien@slackware.com>
+#             * Upgrade to 1.1.0 second release candidate.
+#               Upgraded EBML/Matroska libraries to 0.8.0/0.9.0 (new release
+#               after a long time).
+# 20100609-1: 09/jun/2010 by Eric Hameleers <alien@slackware.com>
+#             * Update VLC snapshot to try and get rid of segfaults in the
+#               VAAPI routines. Also updated ffmpeg (now fully supports VP8
+#               codec, so no additional patching required anymore) and x264
+#               libraries, and live555.
+# 1.1.0.rc3-1:11/jun/2010 by Eric Hameleers <alien@slackware.com>
+#             * Upgrade to 1.1.0 third release candidate.
+#               Unfortunately, I still see segfaults in VLC when VAAPI hardware
+#               decoding support is activating by installing libva package...
+# 1.1.0.rc3-2:13/jun/2010 by Eric Hameleers <alien@slackware.com>
+#             * Add a patch to fix the VAAPI segfaults. My debugger backtrace
+#               allowed fenrir to spot and repair the bug.
+# 1.1.0.rc4-1:16/jun/2010 by Eric Hameleers <alien@slackware.com>
+#             * Update to RC4 for the upcoming 1.1.0 release.
+# 1.1.0-1:    21/jun/2010 by Eric Hameleers <alien@slackware.com>
+#             * Official release of vlc 1.1.0.
+#               ffmpeg was updated to 0.6 (another official release, yay);
+#               x264 and libvpx were updated to a recent snapshot;
+#               libebml, libmatroska, libcdio and orc were upgraded to their
+#               newest versions.
+# 20100714-1: 14/jul/2010 by Eric Hameleers <alien@slackware.com>
+#             * Test build of what will be 1.1.1, with updated x264 and live555.
+# 1.1.1-1:    20/jul/2010 by Eric Hameleers <alien@slackware.com>
+#             * Official release of vlc 1.1.1.
+# 1.1.3-1:    22/aug/2010 by Eric Hameleers <alien@slackware.com>
+#             * Update to 1.1.3.
+# 
+# Run 'sh vlc.SlackBuild' to build a Slackware package.
+# The package (.txz) plus descriptive .txt file are created in /tmp .
+# Install using 'installpkg'. 
+#
+# -----------------------------------------------------------------------------
+
+#
+# NOTE: this SlackBuild is a monster - it tries to wrap all dependencies to
+# vlc into the resulting package by building these deps as static libraries
+# and then in the final stage linking vlc against all the static libraries.
+# The resulting package has all the vlc functionality and does not depend on
+# any software that is not present in a standard full install of Slackware.
+# This makes my package quite different from all the other vlc builds that are
+# floating around on the Internet.
+# /Eric Hameleers/
+#
+
+# -----------------------------------------------------------------------------
+# Set initial variables:
+
+PRGNAM=vlc
+PRGNAM2=mozplugin
+BUILD=${BUILD:-1}
+TAG=${TAG:-"alien"}
+
+PKGTYPE=${PKGTYPE:-"txz"}
+
+# VERSION value may be modified later!
+# * If VERSION is set to "HEAD" or to any value starting with "20",
+#   (i.e. a "yyyymmdd" date format like "20100319") then you get
+#   a git snapshot of the 'master' branch;
+# * A format of "branchname#" or "branchname#yymmdd" means you will get a
+#   checkout from branch "branchname", optionally from the specified date.
+# * Else we look for the tarball for $VERSION in vlc's official releases.
+#
+# Hint: checkout at a certain date takes a snapshot at 00:00, not 23:59)
+#
+# Acceptible formats:
+#VERSION=${VERSION:-"1.0.4"}
+#VERSION=${VERSION:-"20100305"}
+#VERSION=${VERSION:-"HEAD"}
+#VERSION=${VERSION:-"master#20100414"}
+#VERSION=${VERSION:-"@1.1.0-bugfix#20100414"}
+#VERSION=${VERSION:-"master@git://git.videolan.org/vlc/vlc-1.1.git#20100523"}
+
+VERSION=${VERSION:-"1.1.3"}
+
+# At some point, the 1.1 development branched off the master tree:
+DEFGITURI=${GITURI:-"git://git.videolan.org/vlc.git"}
+
+DOCS="ABOUT-NLS AUTHORS COPYING HACKING INSTALL NEWS README THANKS"
+
+NUMJOBS=${NUMJOBS:-7}  # Number of parallel jobs for the compiler 
+
+# Automatically determine the architecture we're building on:
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) export ARCH=i486 ;;
+    arm*) export ARCH=arm ;;
+    # Unless $ARCH is already set, use uname -m for all other archs:
+       *) export ARCH=$( uname -m ) ;;
+  esac
+fi
+
+case "$ARCH" in
+  i486)      SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+             SLKLDFLAGS=""; LIBDIRSUFFIX=""
+             ;;
+  x86_64)    SLKCFLAGS="-O2 -fPIC"
+             SLKLDFLAGS="-L/usr/lib64"; LIBDIRSUFFIX="64"
+             ;;
+  *)         SLKCFLAGS="-O2"
+             SLKLDFLAGS=""; LIBDIRSUFFIX=""
+             ;;
+esac
+
+# -----------------------------------------------------------------------------
+
+# -- PATENT ALERT! --
+# FFmpeg can be built with MP3 (lame) audio encoder (needed for FLV videos)
+# but this library is 'contaminated' with patents from Fraunhofer and GGP.
+# Also, the AAC encoder has patent issues.
+# You can build these patended algorithms into ffmpeg, and if you are an
+# ordinary end user, no one will bother you for using them.
+# For the binaries based on this SlackBuild that I distribute, it is a
+# different story. I am not allowed to distribute binary packages that
+# incorporate patented code. So here you go. My Slackware package was built
+# with "USE_PATENTS=NO" i.e. without using the lame mp3 libary and without the
+# aac libraries.
+#USE_PATENTS="NO"
+USE_PATENTS=${USE_PATENTS:-"YES"}
+USE_PATENTS=$(echo $USE_PATENTS | tr 'a-z' 'A-Z')
+
+# If you set REQUIRE_YASM to "NO" then the script won't refuse to build
+#   VLC in case you don't have yasm installed (it is needed to
+#   build x264 newer than the 20080301 snapshot). In this case, the script will
+#   automatically 'downgrade' x264 to the 20080301-2245 snapshot.
+REQUIRE_YASM=${REQUIRE_YASM:-"YES"}
+REQUIRE_YASM=$(echo $REQUIRE_YASM | tr 'a-z' 'A-Z')
+
+# VLC uses Qt4 for its GUI.
+# Slackware 13.0 already has Qt4 installed, this will speed up
+# the compilation a lot, and create a smaller vlc package.
+# In that case, define STATIC_QT4="NO" to use the system version of Qt4.
+# If you want an all-in package (including static version of Qt4), then
+# define STATIC_QT4="YES":
+STATIC_QT4=${STATIC_QT4:-"NO"}
+STATIC_QT4=$(echo $STATIC_QT4 | tr 'a-z' 'A-Z')
+
+# VLC uses ffmpeg's avcodec for a lot of the AV processing.
+# If you already have ffmpeg installed, it will speed up the compilation,
+# and create a smaller vlc package, if you define STATIC_FFMPEG="NO":
+# Note: I _strongly_ suggest you compile ffmpeg statically!
+STATIC_FFMPEG=${STATIC_FFMPEG:-"YES"}
+STATIC_FFMPEG=$(echo $STATIC_FFMPEG | tr 'a-z' 'A-Z')
+
+# You can disable building the Mozilla plugin by defining MOZPLUGIN="NO":
+MOZPLUGIN=${MOZPLUGIN:-"YES"}
+MOZPLUGIN=$(echo $MOZPLUGIN | tr 'a-z' 'A-Z')
+
+# -----------------------------------------------------------------------------
+# We're done with the initials. Let's move on:
+# -----------------------------------------------------------------------------
+
+# Dependent package versions
+A52=0.7.4
+AMR=0.1.2
+ASS=0.9.9
+AVC1394=0.5.3
+CDDB=1.3.2
+CDIO=0.82
+DAAP=0.4.0
+DC1394=2.1.2
+DCA=0.0.5
+DV=1.0.0
+DVBPSI=0.1.7
+DVDNAV=4.1.3
+DVDREAD=4.1.3
+DVDCSS=1.2.10
+EBML=1.0.0
+FAAC=1.28
+FAAD2=2.7
+#FFMPEG=r23555   # 20100609
+FFMPEG=0.6
+FLUID=1.1.1
+GGI=2.2.2
+GII=1.0.2
+GOOM=2k4-0
+KATE=0.3.7
+LAME=3.98.4
+LIBVA="0.31.0-1+sds13"
+LIVE=latest
+LUA=5.1.4
+MATROSKA=1.0.0
+MPCDEC=1.2.6
+MPEG2DEC=0.5.1
+ORC=0.4.5
+PROJECTM=2.0.1
+QT4=4.6.0
+RAW1394=2.0.5
+SCHROEDINGER=1.0.9
+SHOUT=2.2.2
+SPEEX=1.2rc1
+SWSCALE=""       # Set SWSCALE="" to checkout a version of ffmpeg's swscale
+                 # that matches the date of the FFMPEG snapshot.
+THEORA=1.1.1
+TIGER=0.3.3
+TWOLAME=0.3.12
+UPNP=1.6.6
+V4L=0.8.0
+VCD=0.7.23
+VPX=20100617
+X264_SAFE=20080301-2245 # In later versions nasm complains
+                        # about 'function hidden'
+X264=20100713-2245      # Needs yasm installed
+XUL=1.9.2
+
+# Determine what X we're running (the modular X returns the prefix
+# in the next command, while older versions stay silent):
+XPREF=$(pkg-config --variable=prefix x11) || true
+[ "$XPREF" == "" ] && XPREF='/usr/X11R6'
+
+# Where do we look for sources?
+SRCDIR=$(cd $(dirname $0); pwd)
+
+# Place to build (TMP) package (PKG) and output (OUTPUT) the program:
+TMP=${TMP:-"/tmp/build"}
+PKG=$TMP/package-$PRGNAM
+PKG2=$TMP/package-$PRGNAM-$PRGNAM2
+OUTPUT=${OUTPUT:-"/tmp"}
+
+# This is where we are going to temporarily install the dependencies:
+VLCDEPSDIR="$TMP/tmp-$PRGNAM/vlcdeps"
+
+# Building the mozilla plugin requires the Sun Java SDK:
+if [ "$MOZPLUGIN" == "NO" ]; then
+  DO_MOZPLUGIN=""
+else
+  if which javac 1>/dev/null 2>/dev/null ; then
+    MOZPLUGIN="YES"
+    DO_MOZPLUGIN="--enable-mozilla --with-mozilla-sdk-path=$VLCDEPSDIR/usr/xulrunner-sdk"
+  else
+    echo "+++ NOT building mozilla plugin - Needs Sun JDK from /extra! +++"
+    MOZPLUGIN="NO"
+    DO_MOZPLUGIN=""
+  fi
+fi
+
+# Check for yasm, use older x264 snapshot if not found:
+if ! which yasm >/dev/null 2>&1 ; then
+  echo "+++"
+  echo "+++ The 'yasm' program does not seem to be installed."
+  echo "+++ The X264 codec compilation needs yasm (nasm will not do)"
+  if [ "$REQUIRE_YASM" != "YES" ]; then 
+    X264=$X264_SAFE
+    echo "+++ Continuing the build anyway, but will use an older X264 ($X264)."
+    echo "+++"
+  else
+    echo "+++ Aborting the build - set the internal script variable:"
+    echo "+++   REQUIRE_YASM to 'NO' if you don't have yasm installed,"
+    echo "+++   and want to fall back to an old (hopefully still useable)"
+    echo "+++   version of X264 that builds with nasm instead."
+    echo "+++"
+    exit 1
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Source tarballs and source URLs.
+# Sources which are not patented should have SRCPAT[n]="NO"
+# Sources which are patented should have SRCPAT[n]="YES" which prevents then
+#   from being downloaded and used if we build a patent-free package.
+# ---------------------------------------------------------------------------
+
+# VLC source
+if [ "$VERSION" == "HEAD"  ]; then
+  # We check out git's HEAD:
+  BRANCH="master"
+  GITURI=${DEFGITURI}
+  SRCVER=$(date +%Y%m%d)
+  SRCURL[0]=""
+elif [ "$(echo $VERSION | cut -c1-2)" == "20"  ]; then
+  # We check out git at a specific date:
+  BRANCH="master"
+  GITURI=${DEFGITURI}
+  SRCVER=$VERSION
+  SRCURL[0]=""
+elif [ "$(echo $VERSION| cut -d# -f2)" != "$VERSION"  ]; then
+  # VERSION has a hashmark it it (branchname@gituri#datestamp)
+  BRANCH="$(echo $VERSION| cut -d# -f1 |cut -d@ -f1)"
+  GITURI="$(echo $VERSION| cut -d# -f1 |cut -d@ -f2-)"
+  SRCVER="$(echo $VERSION| cut -d# -f2)"
+  if [ "x$GITURI" = "x$BRANCH" -o "x$GITURI" = "x" ]; then
+    GITURI=${DEFGITURI}
+  fi
+  if [ "x$BRANCH" = "x" ]; then BRANCH="master" ; fi
+  if [ "x$SRCVER" = "x" ]; then SRCVER=$(date +%Y%m%d) ; fi
+  SRCURL[0]=""
+else
+  BRANCH=""
+  GITURI=""
+  SRCVER=$VERSION
+  SRCURL[0]="http://download.videolan.org/pub/videolan/${PRGNAM}/${SRCVER}/${PRGNAM}-${SRCVER}.tar.bz2"
+fi
+SOURCE[0]="$SRCDIR/${PRGNAM}-${SRCVER}.tar.bz2"
+SRCPAT[0]="NO"
+USE[0]="YES"
+
+# ffmpeg libraries
+SOURCE[1]="$SRCDIR/ffmpeg-${FFMPEG}.tar.bz2"
+SRCURL[1]="http://ffmpeg.mplayerhq.hu/releases/ffmpeg-${FFMPEG}.tar.bz2"
+#SRCURL[1]=""
+SRCPAT[1]="NO"
+USE[1]="YES"
+
+# AMR de/encoder libraries used in ffmpeg to encode 3GPP audio
+SOURCE[2]="$SRCDIR/opencore-amr-${AMR}.tar.gz"
+SRCURL[2]="http://downloads.sourceforge.net/opencore-amr/opencore-amr-${AMR}.tar.gz"
+SRCPAT[2]="NO"
+USE[2]="YES"
+
+# Kate - a karaoke/text stream overlay codec
+SOURCE[3]="$SRCDIR/libkate-${KATE}.tar.gz"
+SRCURL[3]="http://libkate.googlecode.com/files/libkate-${KATE}.tar.gz"
+SRCPAT[3]="NO"
+USE[3]="YES"
+
+# Libtiger - A rendering library for Kate streams using Pango and Cairo
+SOURCE[4]="$SRCDIR/libtiger-${TIGER}.tar.gz"
+SRCURL[4]="http://libtiger.googlecode.com/files/libtiger-${TIGER}.tar.gz"
+SRCPAT[4]="NO"
+USE[4]="YES"
+
+# Lua - embedded interpreter for lua playlist, metafetcher and interface plugins
+SOURCE[5]="$SRCDIR/lua-${LUA}.tar.gz"
+SRCURL[5]="http://www.lua.org/ftp/lua-${LUA}.tar.gz"
+SRCPAT[5]="NO"
+USE[5]="YES"
+
+# Lame is used for the audio in FLV videos; will statically link with ffmpeg
+SOURCE[6]="$SRCDIR/lame-$LAME.tar.gz"
+SRCURL[6]="http://downloads.sourceforge.net/lame/lame-$LAME.tar.gz"
+SRCPAT[6]="YES"
+USE[6]="YES"
+
+SOURCE[7]="$SRCDIR/libdv-${DV}.tar.gz"
+SRCURL[7]="http://downloads.sourceforge.net/libdv/libdv-${DV}.tar.gz"
+SRCPAT[7]="NO"
+USE[7]="YES"
+
+# FAAC library, will be statically linked with ffmpeg
+SOURCE[8]="$SRCDIR/faac-$FAAC.tar.gz"
+SRCURL[8]="http://downloads.sourceforge.net/faac/faac-$FAAC.tar.gz"
+SRCPAT[8]="YES"
+USE[8]="YES"
+
+# Qt4 is used for the GUI - VLC will link statically against it
+SOURCE[9]="$SRCDIR/qt-x11-opensource-src-$QT4.tar.gz"
+SRCURL[9]="http://get.qt.nokia.com/qt/source/qt-everywhere-opensource-src-${QT4}.tar.gz"
+SRCPAT[9]="NO"
+USE[9]="NO"
+
+# FAAD2 support:
+SOURCE[10]="$SRCDIR/faad2-$FAAD2.tar.gz"
+SRCURL[10]="http://downloads.sourceforge.net/faac/faad2-$FAAD2.tar.gz"
+SRCPAT[10]="NO"
+USE[10]="YES"
+
+# Matroska support:
+SOURCE[11]="$SRCDIR/libebml-$EBML.tar.bz2"
+SRCURL[11]="http://dl.matroska.org/downloads/libebml/libebml-$EBML.tar.bz2"
+SRCPAT[11]="NO"
+USE[11]="YES"
+
+SOURCE[12]="$SRCDIR/libmatroska-$MATROSKA.tar.bz2"
+SRCURL[12]="http://dl.matroska.org/downloads/libmatroska/libmatroska-$MATROSKA.tar.bz2"
+SRCPAT[12]="NO"
+USE[12]="YES"
+
+# libmpeg2
+SOURCE[13]="$SRCDIR/libmpeg2-$MPEG2DEC.tar.gz"
+SRCURL[13]="http://libmpeg2.sourceforge.net/files/libmpeg2-$MPEG2DEC.tar.gz"
+SRCPAT[13]="NO"
+USE[13]="YES"
+
+# DVD support:
+SOURCE[14]="$SRCDIR/libdvdnav-$DVDNAV.tar.bz2"
+SRCURL[14]="http://www1.mplayerhq.hu/MPlayer/releases/dvdnav/libdvdnav-${DVDNAV}.tar.bz2"
+#SRCURL[14]=""
+SRCPAT[14]="NO"
+USE[14]="YES"
+
+SOURCE[15]="$SRCDIR/libdvdread-${DVDREAD}.tar.bz2"
+SRCURL[15]="http://www1.mplayerhq.hu/MPlayer/releases/dvdnav/libdvdread-${DVDREAD}.tar.bz2"
+#SRCURL[15]=""
+SRCPAT[15]="NO"
+USE[15]="YES"
+
+# CD media read/access support (including iso/cue/nrg formats):
+SOURCE[16]="$SRCDIR/libcdio-${CDIO}.tar.gz"
+SRCURL[16]="http://ftp.gnu.org/gnu/libcdio/libcdio-$CDIO.tar.gz"
+SRCPAT[16]="NO"
+USE[16]="YES"
+
+# Since www.vcdimager.org is down, we use a GNU videolan mirror:
+SOURCE[17]="$SRCDIR/vcdimager-${VCD}.tar.gz"
+SRCURL[17]="http://ftp.gnu.org/gnu/vcdimager/vcdimager-$VCD.tar.gz"
+SRCPAT[17]="NO"
+USE[17]="YES"
+
+# MP2 audio (de)coding support:
+SOURCE[18]="$SRCDIR/twolame-${TWOLAME}.tar.gz"
+SRCURL[18]="http://downloads.sourceforge.net/twolame/twolame-$TWOLAME.tar.gz"
+SRCPAT[18]="NO"
+USE[18]="YES"
+
+# Musepack (MPC) audio demuxing support:
+SOURCE[19]="$SRCDIR/libmpcdec-${MPCDEC}.tar.bz2"
+SRCURL[19]="http://files.musepack.net/source/libmpcdec-${MPCDEC}.tar.bz2"
+SRCPAT[19]="NO"
+USE[19]="YES"
+
+# Orc (oil runtime compiler) is a dependency for schroedinger
+SOURCE[20]="$SRCDIR/orc-${ORC}.tar.gz"
+SRCURL[20]="http://code.entropywave.com/download/orc/orc-${ORC}.tar.gz"
+SRCPAT[20]="NO"
+USE[20]="YES"
+
+# Dirac video codec support by schroedinger:
+SOURCE[21]="$SRCDIR/schroedinger-${SCHROEDINGER}.tar.gz"
+SRCURL[21]="http://www.diracvideo.org/download/schroedinger/schroedinger-${SCHROEDINGER}.tar.gz"
+SRCPAT[21]="NO"
+USE[21]="YES"
+
+# CDDB lookups:
+SOURCE[22]="$SRCDIR/libcddb-${CDDB}.tar.bz2"
+SRCURL[22]="http://downloads.sourceforge.net/libcddb/libcddb-${CDDB}.tar.bz2"
+SRCPAT[22]="NO"
+USE[22]="YES"
+
+# Act as a source client to Icecast/Shoutcast:
+SOURCE[23]="$SRCDIR/libshout-${SHOUT}.tar.gz"
+SRCURL[23]="http://downloads.us.xiph.org/releases/libshout/libshout-${SHOUT}.tar.gz"
+SRCPAT[23]="NO"
+USE[23]="YES"
+
+# SPEEX is used by libshout and vlc:
+SOURCE[24]="$SRCDIR/speex-${SPEEX}.tar.gz"
+SRCURL[24]="http://downloads.us.xiph.org/releases/speex/speex-${SPEEX}.tar.gz"
+SRCPAT[24]="NO"
+USE[24]="YES"
+
+# Goom, a visualisation library for audio player
+SOURCE[25]="$SRCDIR/goom-${GOOM}-src.tar.gz"
+SRCURL[25]="http://downloads.sourceforge.net/goom/goom-${GOOM}-src.tar.gz"
+SRCPAT[25]="NO"
+USE[25]="YES"
+
+# GGI, output plugin
+SOURCE[26]="$SRCDIR/ggi-${GGI}-bundle.src.tar.bz2"
+SRCURL[26]="http://www.ggi-project.org/ftp/ggi/v2.2/ggi-${GGI}-bundle.src.tar.bz2"
+SRCPAT[26]="NO"
+USE[26]="YES"
+
+# X264 encoder - for H264/AVC video streams
+SOURCE[27]="$SRCDIR/x264-snapshot-${X264}.tar.bz2"
+SRCURL[27]="ftp://ftp.videolan.org/pub/videolan/x264/snapshots/x264-snapshot-${X264}.tar.bz2"
+SRCPAT[27]="NO"
+USE[27]="YES"
+
+# The A52 decoder - aka AC3
+SOURCE[28]="$SRCDIR/a52dec-$A52.tar.gz"
+SRCURL[28]="http://liba52.sourceforge.net/files/a52dec-$A52.tar.gz"
+SRCPAT[28]="NO"
+USE[28]="YES"
+
+# Live555 support:
+SOURCE[29]="$SRCDIR/live555-${LIVE}.tar.gz"
+SRCURL[29]="http://www.live555.com/liveMedia/public/live555-${LIVE}.tar.gz"
+SRCPAT[29]="NO"
+USE[29]="YES"
+
+# Library needed to control IEEE 1394 (firewire-) based cameras
+SOURCE[30]="$SRCDIR/libraw1394-${RAW1394}.tar.gz"
+SRCURL[30]="http://downloads.sourceforge.net/libraw1394/libraw1394-${RAW1394}.tar.gz"
+SRCPAT[30]="NO"
+USE[30]="YES"
+
+SOURCE[31]="$SRCDIR/libdc1394-${DC1394}.tar.gz"
+SRCURL[31]="http://downloads.sourceforge.net/libdc1394/libdc1394-${DC1394}.tar.gz"
+SRCPAT[31]="NO"
+USE[31]="YES"
+
+SOURCE[32]="$SRCDIR/libavc1394-${AVC1394}.tar.gz"
+SRCURL[32]="http://downloads.sourceforge.net/libavc1394/libavc1394-${AVC1394}.tar.gz"
+SRCPAT[32]="NO"
+USE[32]="YES"
+
+# Library designed for decoding and generation of MPEG TS and DVB PSI tables.
+SOURCE[33]="$SRCDIR/libdvbpsi-${DVBPSI}.tar.bz2"
+SRCURL[33]="http://download.videolan.org/pub/libdvbpsi/${DVBPSI}/libdvbpsi-${DVBPSI}.tar.bz2"
+SRCPAT[33]="NO"
+USE[33]="YES"
+
+# a free DTS Coherent Acoustics decoder
+SOURCE[34]="$SRCDIR/libdca-${DCA}.tar.bz2"
+SRCURL[34]="http://download.videolan.org/pub/videolan/libdca/${DCA}/libdca-${DCA}.tar.bz2"
+SRCPAT[34]="NO"
+USE[34]="YES"
+
+# Theora encoder/decoder libraries
+SOURCE[35]="$SRCDIR/libtheora-${THEORA}.tar.gz"
+SRCURL[35]="http://downloads.xiph.org/releases/theora/libtheora-${THEORA}.tar.gz"
+SRCPAT[35]="NO"
+USE[35]="YES"
+
+# Universal Plug'n'Play
+SOURCE[36]="$SRCDIR/libupnp-${UPNP}.tar.bz2"
+SRCURL[36]="http://downloads.sourceforge.net/pupnp/libupnp-${UPNP}.tar.bz2"
+SRCPAT[36]="NO"
+USE[36]="YES"
+
+# DAAP support (iTunes)
+SOURCE[37]="$SRCDIR/libopendaap-${DAAP}.tar.bz2"
+# This one seems not the right daap lib...:
+#SRCURL[37]="http://downloads.sourceforge.net/daap/libopenndaap-${DAAP}.tar.bz2"
+SRCURL[37]="http://crazney.net/programs/itunes/files/libopendaap-${DAAP}.tar.bz2"
+SRCPAT[37]="NO"
+USE[37]="YES"
+
+# Libass - portable library for SSA/ASS subtitles rendering
+SOURCE[38]="$SRCDIR/libass-$ASS.tar.bz2"
+SRCURL[38]="http://libass.googlecode.com/files/libass-$ASS.tar.bz2"
+SRCPAT[38]="NO"
+USE[38]="YES"
+
+# FluidSynth - midi playback
+SOURCE[39]="$SRCDIR/fluidsynth-${FLUID}.tar.gz"
+SRCURL[39]="http://download.savannah.gnu.org/releases/fluid/fluidsynth-${FLUID}.tar.gz"
+SRCPAT[39]="NO"
+USE[39]="YES"
+
+# libv4l: Collection of video4linux support libraries
+SOURCE[40]="$SRCDIR/v4l-utils-${V4L}.tar.bz2"
+SRCURL[40]="http://linuxtv.org/downloads/v4l-utils/v4l-utils-${V4L}.tar.bz2"
+SRCPAT[40]="NO"
+USE[40]="YES"
+
+# projectM: visualisation plugin
+SOURCE[41]="$SRCDIR/projectM-${PROJECTM}-Source.tar.gz"
+SRCURL[41]="http://sourceforge.net/projects/projectm/files/${PROJECTM}/projectM-${PROJECTM}-Source.tar.gz/download"
+SRCPAT[41]="NO"
+USE[41]="YES"
+
+SOURCE[42]="$SRCDIR/libva_${LIBVA}.tar.gz"
+SRCURL[42]="http://www.splitted-desktop.com/~gbeauchesne/libva/libva_${LIBVA}.tar.gz"
+SRCPAT[42]="NO"
+USE[42]="YES"
+
+SOURCE[43]="$SRCDIR/xulrunner-${XUL}.source.tar.bz2"
+SRCURL[43]="http://releases.mozilla.org/pub/mozilla.org/xulrunner/releases/${XUL}/source/xulrunner-${XUL}.source.tar.bz2"
+SRCPAT[43]="NO"
+USE[43]="NO"
+
+SOURCE[44]="$SRCDIR/libvpx-${VPX}.tar.bz2"
+#SRCURL[44]="http://webm.googlecode.com/files/libvpx-${VPX}.tar.bz2"
+SRCURL[44]=""
+SRCPAT[44]="NO"
+USE[44]="YES"
+
+# CSS decoding- VLC can do without if you install an external libdvdcss package.
+#SOURCE[xx]="$SRCDIR/libdvdcss-${DVDCSS}.tar.bz2"
+#SRCURL[xx]="http://download.videolan.org/pub/libdvdcss/${DVDCSS}/libdvdcss-${DVDCSS}.tar.bz2"
+#SRCPAT[xx]="YES"
+#USE[xx]="YES"
+
+# Use the src_checkout() function if no downloadable tarball exists.
+# This function checks out sources from SVN/CVS and creates a tarball of them.
+src_checkout() {
+  # Param #1 : index in the SOURCE[] array.
+  # Param #2 : full path to where SOURCE[$1] tarball should be created.
+  # Determine the tarball extension:
+  PEXT=$(echo "${2}" | sed -r -e 's/.*[^.].(tar.xz|tar.gz|tar.bz2|tgz).*/\1/')
+  case "$PEXT" in
+    "tar.xz") TARCOMP="J" ;;
+    "tar.gz") TARCOMP="z" ;;
+    "tgz") TARCOMP="z" ;;
+    "tar.bz2") TARCOMP="j" ;;
+    *) echo "Archive can only have extension 'tar.xz', '.tar.gz' '.tar.bz2' or '.tgz'" ; exit 1 ;;
+  esac
+  case ${1} in
+  0) # vlc-$SRCVER
+     mkdir vlc_temp_checkout_$$ \
+       && cd vlc_temp_checkout_$$
+
+       if [ "$VERSION" = "HEAD" -o "$VERSION" = "HEAD@" -o "$VERSION" = "master@" ]; then
+         # Checkout without downloading version history (fast!):
+         echo "Checking out HEAD from '$GITURI':"
+         git clone --depth=1 ${GITURI} vlc-${SRCVER}
+       else
+         # Checkout code from a certain branch and/or date; this will take a
+         # long time because we have to clone the complete git-repository first:
+         echo "Checking out $BRANCH at date $SRCVER from '$GITURI':"
+         git clone ${GITURI} vlc-${SRCVER} \
+         && cd vlc-${SRCVER} \
+         && git checkout $BRANCH \
+         && git checkout $(git rev-list -n 1 --before="`date -d $SRCVER`" $BRANCH) \
+         && cd ..
+       fi
+       chown -R root:root . \
+       && tar --exclude .git -${TARCOMP}cf ${2} vlc-${SRCVER}
+     cd ..
+     rm -rf vlc_temp_checkout_$$
+     # If VERSION was "HEAD" we still want a date to appear in the pkgname:
+     VERSION=${SRCVER}
+     ;;
+  1) # ffmpeg-$FFMPEG
+     # Run 'cd libscwale; svn propget -R svn:externals .' to see that the
+     # libscscale directory is in fact a separate external svn URL!
+     local SVNURL=svn://svn.mplayerhq.hu/ffmpeg/trunk
+     if [ "$(echo ${FFMPEG}|cut -c1)" == 'r' ]; then # revision instead of date
+       REV=$(echo ${FFMPEG} | cut -c2-)
+       # We will checkout libscscale snapshot of the same date as our ffmpeg
+       # snapshot (otherwise we will get libswscale's HEAD) unless we have set
+       # SWSCALE to a non-empty value:
+       SWREV="{${SWSCALE:-$(svn info $SVNURL |grep "Last Changed Date:" |cut -d' ' -f4)}}"
+     else
+       REV="{${FFMPEG}}"
+       SWREV=${SWSCALE:-$REV}
+     fi
+     mkdir ffmpeg-${FFMPEG} \
+       && cd ffmpeg-${FFMPEG} \
+       && svn checkout --revision $REV svn://svn.mplayerhq.hu/ffmpeg/trunk . \
+       && cd libswscale \
+       && svn update --revision $SWREV \
+       && cd .. \
+       && chown -R root:root . \
+       && cd .. \
+       && tar --exclude .svn -${TARCOMP}cf ${2} ffmpeg-${FFMPEG}
+     rm -rf ffmpeg-${FFMPEG}
+     unset SVNURL
+     ;;
+ 14) # libdvdnav-$DVDNAV
+     local SVNURL=svn://svn.mplayerhq.hu/dvdnav/trunk/libdvdnav
+     if [ "$(echo ${DVDNAV}|cut -c1)" == 'r' ]; then # revision instead of date
+       REV=$(echo ${DVDNAV} | cut -c2-)
+     else
+       REV="{${DVDNAV}}"
+     fi
+     mkdir libdvdnav-${DVDNAV} \
+       && cd libdvdnav-${DVDNAV} \
+       && svn checkout --revision $REV $SVNURL . \
+       && chown -R root:root . \
+       && cd .. \
+       && tar --exclude .svn -${TARCOMP}cf ${2} libdvdnav-${DVDNAV}
+     rm -rf libdvdnav-${DVDNAV}
+     unset SVNURL
+     ;;
+ 15) # libdvdread-$DVDREAD
+     if [ "$(echo ${DVDREAD}|cut -c1)" == 'r' ]; then # revision instead of date
+       REV=$(echo ${DVDREAD} | cut -c2-)
+     else
+       REV="{${DVDREAD}}"
+     fi
+     mkdir libdvdread-${DVDREAD} \
+       && cd libdvdread-${DVDREAD} \
+       && svn checkout --revision $REV svn://svn.mplayerhq.hu/dvdnav/trunk/libdvdread . \
+       && find . -type d -name '.svn' -depth | xargs rm -rf \
+       && chown -R root:root . \
+       && cd .. \
+       && tar -${TARCOMP}cf ${2} libdvdread-${DVDREAD}
+     rm -rf libdvdread-${DVDREAD}
+     ;;
+  44) # We clone the git of libvpx at a certain date:
+     mkdir libvpx-${VPX} \
+       && cd libvpx-${VPX} \
+       && git clone git://review.webmproject.org/libvpx.git . \
+       && git checkout $(git rev-list -n 1 --before="`date -d $VPX`" master) \
+       && chown -R root:root . \
+       && cd .. \
+       && tar --exclude .git -${TARCOMP}cf ${2} libvpx-${VPX}
+     rm -rf libvpx-${VPX}
+     ;;
+  *) # Do nothing
+     ;;
+  esac
+}
+
+if [ "${USE_PATENTS}" == "YES" ]; then
+  echo ""
+  echo "**"
+  echo "** This build uses patented code (MP3 / AMR / AAC encoders)"
+  echo "** Run the command 'USE_PATENTS=NO $0 $*' to avoid patent issues."
+  echo "**"
+  echo ""
+  sleep 1
+fi
+
+##
+## --- with a little luck, you won't have to edit below this point --- ##
+##
+
+# Exit the script on errors:
+set -e
+trap 'echo "$0 FAILED at line $LINENO!" | tee $OUTPUT/error-${PRGNAM}.log' ERR
+# Catch unitialized variables:
+set -u
+P1=${1:-1}
+
+# Create working directories:
+mkdir -p $TMP/tmp-$PRGNAM # location to build the source
+mkdir -p $PKG             # place for the package to be built
+rm -rf $PKG/*             # We always erase old package's contents:
+mkdir -p $OUTPUT          # place for the package to be saved
+
+if [ "$P1" != "--oldbuild" -a  "$P1" != "--download" ]; then
+  # If the "--oldbuild" parameter is present, we keep
+  #  the old build files and continue;
+  # By default we remove the remnants of previous build and continue:
+  echo -e "**\n**  Cleaning up old build ...\n**"
+  rm -rf $TMP/tmp-$PRGNAM/*
+  rm -f $OUTPUT/*${PRGNAM}*.log   # Delete old logfiles
+fi
+
+# We may not need to download and unpack the Qt4 sources:
+if [ "$STATIC_QT4" != "NO" ]; then
+  echo "**"
+  echo "** Building with a static QT4..."
+  echo "**"
+  USE[9]="YES"
+fi
+
+# We may not need to download and unpack the ffmpeg sources:
+if [ "$STATIC_FFMPEG" != "YES" ]; then
+  echo "**"
+  echo "** Not building static FFMPEG plus dependencies..."
+  echo "**"
+  USE[1]="NO" # ffmpeg
+  USE[2]="NO" # opencore-amr
+  USE[6]="NO" # lame
+  USE[8]="NO" # faac
+  USE[35]="NO" # theora
+fi
+
+# Source file availability:
+for (( i = 0; i < ${#SOURCE[*]}; i++ )) ; do
+  # Do we actually use this source?
+  [ "${USE[$i]}" = "YES" ] || continue
+  # Only download patented code if we are allowing it:
+  if [ "${USE_PATENTS}" == "YES" -o "${SRCPAT[$i]}" != "YES" ]; then
+    if ! [ -f ${SOURCE[$i]} ]; then
+      echo "Source '$(basename ${SOURCE[$i]})' not available yet..."
+      # Check if the $SRCDIR is writable at all - if not, download to $OUTPUT
+      [ -w "$SRCDIR" ] || SOURCE[$i]="$OUTPUT/$(basename ${SOURCE[$i]})"
+      if ! [ "x${SRCURL[$i]}" == "x" ]; then
+        echo "Will download file to $(dirname $SOURCE[$i])"
+        if ! $(wget -nv -T 20 -O "${SOURCE[$i]}" "${SRCURL[$i]}"); then
+          echo "Downloading '$(basename ${SOURCE[$i]})' failed.. aborting the build."
+          mv -f "${SOURCE[$i]}" "${SOURCE[$i]}".FAIL
+          exit 1
+        fi
+      else
+        # Try if we have a SVN/CVS download routine for ${SOURCE[$i]}
+        echo "Will checkout sources to $(dirname $SOURCE[$i])"
+        src_checkout $i "${SOURCE[$i]}" 2>&1 |tee $OUTPUT/checkout-$(basename ${SOURCE[$i]}).log
+      fi
+      if [ ! -f "${SOURCE[$i]}" -o ! -s "${SOURCE[$i]}" ]; then
+        echo "File '$(basename ${SOURCE[$i]})' not available.. aborting the build."
+        exit 1
+      fi
+    fi
+  fi
+done
+
+if [ "$P1" == "--download" ]; then
+  echo "Download complete."
+  exit 0
+fi
+
+# Package building:
+echo "++"
+echo "|| $PRGNAM-$VERSION"
+echo "++"
+
+cd $TMP/tmp-$PRGNAM
+if [ "$P1" != "--oldbuild" ]; then
+  echo "Extracting the source archive(s) for $PRGNAM..."
+  for (( i = 0; i < ${#SOURCE[*]}; i++ )) ; do
+    # Do we actually use this source?
+    [ "${USE[$i]}" = "YES" ] || continue
+    # Only extract and use patented code if we are allowing it:
+    if [ "${USE_PATENTS}" == "YES" -o "${SRCPAT[$i]}" != "YES" ]; then
+      if $(file ${SOURCE[$i]} | grep -q ": bzip2"); then
+        tar -xjvf ${SOURCE[$i]}
+      elif $(file ${SOURCE[$i]} | grep -q ": gzip"); then
+        tar -xzvf ${SOURCE[$i]}
+      elif $(file ${SOURCE[$i]} | grep -iq ": zip"); then
+        unzip ${SOURCE[$i]}
+      fi
+    fi
+  done
+  chown -R root:root *
+  chmod -R u+w,go+r-w,a+X-s *
+fi
+
+# Building the source code:
+echo Building ...
+
+# We will be installing static libs into the following directory:
+mkdir -p $VLCDEPSDIR/usr/{bin,doc,include,lib,man}
+
+# -----------------------------------------------------------------------------
+# Compile theora libraries
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_theora()
+{
+echo -e "**\n**  theora ...\n**"
+cd $TMP/tmp-$PRGNAM/libtheora-${THEORA}
+# Hope this is temporary - add a forgotten file for 1.0beta3:
+if [ ! -f doc/spec/ltablex.sty -a -f $SRCDIR/ltablex.sty ]; then
+  echo "Adding missing 'ltablex.sty'..."
+  cp $SRCDIR/ltablex.sty ./doc/spec/ || true
+fi
+
+# Don't build documentation and other crap:
+sed -i -e "s/doc tests / /" Makefile*
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --disable-examples \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_theora.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_theora.log
+# Install theora into a temp location so ffmpeg can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_theora.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libtheora/
+cp AUTHORS CHANGES COPYING LICENSE README \
+  $VLCDEPSDIR/doc/libtheora/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile lame libraries
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_lame()
+{
+echo -e "**\n**  lame ...\n**"
+cd $TMP/tmp-$PRGNAM/lame-${LAME}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_lame.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_lame.log
+# Install lame into a temp location so ffmpeg can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_lame.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/lame/
+cp API COPYING ChangeLog* DEFINES HACKING LICENSE README* STYLEGUIDE TODO \
+  $VLCDEPSDIR/doc/lame/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile faac library
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_faac()
+{
+echo -e "**\n**  faac ...\n**"
+cd $TMP/tmp-$PRGNAM/faac-$FAAC
+
+# Newer gcc/glibc will bail out otherwise:
+cat $SRCDIR/faac_gcc44.diff | patch -p1 --verbose \
+  2>&1 | tee $OUTPUT/patch-${PRGNAM}_faac.log
+
+#sh bootstrap
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --with-mp4v2 \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_faac.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_faac.log
+# Install faac into a temp location so ffmpeg can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_faac.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/faac/
+cp AUTHORS COPYING ChangeLog NEWS README TODO \
+  $VLCDEPSDIR/doc/faac/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile amr wideband/narrowband library
+# The ffmpeg will use these
+# -----------------------------------------------------------------------------
+make_amr()
+{
+echo -e "**\n**  amr ...\n**"
+cd $TMP/tmp-$PRGNAM/opencore-amr-${AMR}
+LDFLAGS="$SLKLDFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+CFLAGS="$SLKCFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --mandir=$VLCDEPSDIR/usr/man \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_amr.log
+make -j$NUMJOBS 2>&1 | tee $OUTPUT/make-${PRGNAM}_amr.log
+make install PREFIX=$VLCDEPSDIR/usr LIBDIR=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_amr.log
+# Add DOCS to the vlcdeps to have it added to ffmpeg package later:          
+mkdir -p $VLCDEPSDIR/doc/amr
+cp -a AUTHORS COPYING ChangeLog LICENSE NEWS README \
+  $VLCDEPSDIR/doc/amr || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile ffmpeg with support for AMR, LAME, XVID, FAAC
+# Later, we will statically link VLC to the generated libavcodec libraries
+# -----------------------------------------------------------------------------
+make_ffmpeg()
+{
+echo -e "**\n**  ffmpeg ...\n**"
+OLDDIR=$(pwd)
+cd $TMP/tmp-$PRGNAM
+# Take care of snaphot directory:
+if [ -d ffmpeg-export-* ]; then
+  rm -rf ffmpeg-${FFMPEG}
+  mv ffmpeg-export-* ffmpeg-${FFMPEG}
+fi
+
+# Only use patented code if we are allowing it:
+if [ "${USE_PATENTS}" == "YES" ]; then
+  USE_PATENTED="--enable-libmp3lame --enable-libfaac --enable-nonfree"
+else
+  USE_PATENTED=" "
+fi
+
+cd $TMP/tmp-$PRGNAM/ffmpeg-${FFMPEG}
+
+if [ "$ARCH" = "x86_64" ]; then
+  # Prefer a specific versioned patch over the version-less patch:
+  if [ -f $SRCDIR/ffmpeg-${FFMPEG}_x86_64_asm.patch ]; then
+    FFMPEGASM=ffmpeg-${FFMPEG}_x86_64_asm
+  else
+    FFMPEGASM=ffmpeg_x86_64_asm
+  fi
+  # Assembler patch fixes vlc's swscale plugin as well as enables MMX/SSE:
+  cat $SRCDIR/${FFMPEGASM}.patch | patch -p1 --verbose \
+    2>&1 | tee $OUTPUT/patch-${PRGNAM}_ffmpeg.log
+  ARCHOPTS="--arch=x86_64 --enable-pic"
+else
+  ARCHOPTS=""
+fi
+
+# Stamp the version into the source:
+[ -f version.sh ] && sed -i -e "s/UNKNOWN/$FFMPEG/" version.sh
+
+TMPDIR="$TMP" \
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+PKG_CONFIG_PATH="${VLCDEPSDIR}/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --shlibdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  ${USE_PATENTED} \
+  --enable-gpl \
+  --enable-version3 \
+  --enable-libopencore-amrnb \
+  --enable-libopencore-amrwb \
+  --enable-libtheora \
+  --enable-libvpx \
+  --enable-avfilter \
+  --enable-postproc \
+  --enable-pthreads \
+  --disable-ffserver \
+  --disable-ffplay \
+  --disable-ffmpeg \
+  --disable-ffprobe \
+  --enable-hardcoded-tables \
+  --enable-fastdiv \
+  --disable-debug \
+  --disable-shared \
+  --enable-static \
+  --enable-memalign-hack \
+  --enable-bzlib \
+  --enable-zlib \
+  --enable-vaapi \
+  --disable-vdpau \
+  $ARCHOPTS \
+  --extra-cflags="-I${VLCDEPSDIR}/usr/include -DRUNTIME_CPUDETECT" \
+  --extra-ldflags="-L${VLCDEPSDIR}/usr/lib${LIBDIRSUFFIX}" \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_ffmpeg.log
+
+  # Do not add '-fPIC -DPIC' to extra-cflags or "can't find
+  # a register in class 'GENERAL_REGS' while reloading 'asm'" occurs
+  # --enable-libogg \ Newer ffmpeg no longer need this.
+  # --enable-libxvid \ generates vlc linker errors, so we use ffmpeg's
+  #   native xvid encoder implementation instead
+  #--enable-libvorbis \  # Use ffmpeg's native support
+  #--disable-vhook \
+  #--disable-devices \
+  #--disable-protocols \
+  #--logfile=$OUTPUT/ffmpeg.conf.log \
+
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_ffmpeg.log
+[ $? -ne 0 ] && return 1
+
+# Install ffmpeg into a temp location so vlc can pickup the libraries
+make install-libs install-headers \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_ffmpeg.log
+
+# If we compiled vaapi support:
+if [ ! -f $VLCDEPSDIR/usr/include/vaapi.h ]; then
+  cp libavcodec/vaapi.h $VLCDEPSDIR/usr/include/
+fi
+
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/ffmpeg/
+cp COPYING* CREDITS Changelog MAINTAINERS README \
+  $VLCDEPSDIR/doc/ffmpeg/ || true
+
+cd $OLDDIR
+}
+
+# -----------------------------------------------------------------------------
+# Next, compile Qt4
+# We will link VLC statically to the generated libraries
+# -----------------------------------------------------------------------------
+make_qt4()
+{
+echo -e "**\n**  Qt4 ...\n**"
+
+# If we build a static Qt4 gui, unset the QT-related environment variables,
+# so that a pre-existing Qt4 will not be picked up and create errors later:
+unset QTDIR
+unset QT4DIR
+NEWPATH="$VLCDEPSDIR/usr/bin"
+for elem in $(echo $PATH | cut -d: --output-delimiter=' ' -f1-) ; do
+  if ! $(echo "$elem"| grep -q /qt) ; then
+    NEWPATH="$NEWPATH:$elem"
+  fi
+done
+export PATH="$NEWPATH"
+
+cd $TMP/tmp-$PRGNAM/$(ls --indicator-style=none | grep qt-*-src-${QT4})
+
+export CFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS"
+export CXXFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS"
+export OPENSOURCE_CXXFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS"
+export LDFLAGS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS"
+export PKG_CONFIG_PATH="${VLCDEPSDIR}/usr/lib${LIBDIRSUFFIX}/pkgconfig"
+echo "o
+yes" | ./configure \
+  -prefix $VLCDEPSDIR \
+  -libdir $VLCDEPSDIR/lib${LIBDIRSUFFIX} \
+  -release \
+  -static \
+  -fast \
+  -no-phonon \
+  -no-qt3support \
+  -no-exceptions \
+  -qt-gif \
+  -qt-libpng \
+  -qt-libjpeg \
+  -qt-zlib \
+  -nomake examples \
+  -nomake demos \
+  -nomake docs \
+  -no-separate-debug-info \
+  -no-pch \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_qt4.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_qt4.log || exit 1
+# With the above prefix we can install without INSTALL_ROOT; we need this
+# so the Qt4 binaries will be picked up by vlc's configure script:
+#make install INSTALL_ROOT=$VLCDEPSDIR \
+make install 2>&1 | tee $OUTPUT/install-${PRGNAM}_qt4.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/qt4/
+cp *GPL_EXCEPTION* FAQ* INSTALL KNOWN* LICENSE* README* \
+  $VLCDEPSDIR/doc/qt4/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# ADDITIONAL CODECS AND INPUT LIBRARIES FOR VLC
+# -----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
+# Compile faad2
+# -----------------------------------------------------------------------------
+make_faad2()
+{
+echo -e "**\n**  faad2 ...\n**"
+cd $TMP/tmp-$PRGNAM/faad2-$FAAD2
+#autoreconf -vif
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --without-xmms \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_faad2.log
+  # No longer available:
+  #--with-mp4v2 \
+  # Gives errors "faad bitstream value not allowed by specification":
+  #--with-drm \
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_faad2.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/faad2/
+cp AUTHORS COPYING ChangeLog README* TODO \
+  $VLCDEPSDIR/doc/faad2/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile a52 libraries
+# -----------------------------------------------------------------------------
+make_a52()
+{
+echo -e "**\n**  a52 ...\n**"
+cd $TMP/tmp-$PRGNAM/a52dec-${A52}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_a52.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_a52.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/a52dec/
+cp AUTHORS COPYING ChangeLog HISTORY INSTALL NEWS README TODO \
+  $VLCDEPSDIR/doc/a52dec/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile live555
+# -----------------------------------------------------------------------------
+make_live555()
+{
+echo -e "**\n**  live555 ...\n**"
+cd $TMP/tmp-$PRGNAM/live
+# Force the use of our CFLAGS
+sed -i -e "s|-O2|${SLKCFLAGS}|g" config.linux
+# Live555 is not useable with vlc unless linked statically.
+# We need this patch for the tarballs around end september 2009:
+if ! $(grep -q Bstatic config.linux) ; then
+  sed -i -e 's/\(LIBRARY_LINK =\).*/\1 $(LD) -o/g' \
+         -e 's/\(LIBRARY_LINK_OPTS =\).*/\1 $(LINK_OPTS) -r -Bstatic/g' \
+         config.linux
+fi
+./genMakefiles linux 2>&1 | tee $OUTPUT/configure-${PRGNAM}_live.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_live.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/live555/
+cp COPYING README \
+  $VLCDEPSDIR/doc/live555/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile ebml
+# -----------------------------------------------------------------------------
+make_ebml()
+{
+echo -e "**\n**  ebml ...\n**"
+OLDDIR=$(pwd)
+cd $TMP/tmp-$PRGNAM/libebml-$EBML/make/linux
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+make -j${NUMJOBS} staticlib prefix=$VLCDEPSDIR/usr \
+  2>&1 | tee $OUTPUT/make-${PRGNAM}_ebml.log
+# Install into a temp directory where vlc & matroska can pick it up:
+make install_staticlib install_headers \
+  prefix=$VLCDEPSDIR/usr \
+  includedir=$VLCDEPSDIR/usr/include/ebml \
+  libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_ebml.log
+cd $TMP/tmp-$PRGNAM/libebml-$EBML
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libebml/
+cp ChangeLog LICENSE.LGPL \
+  $VLCDEPSDIR/doc/libebml/ || true
+cd $OLDDIR
+}
+
+# -----------------------------------------------------------------------------
+# Compile matroska
+# -----------------------------------------------------------------------------
+make_matroska()
+{
+echo -e "**\n**  matroska ...\n**"
+OLDDIR=$(pwd)
+cd $TMP/tmp-$PRGNAM/libmatroska-$MATROSKA/make/linux
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+make -j${NUMJOBS} staticlib prefix=$VLCDEPSDIR/usr \
+  LIBEBML_INCLUDE_DIR=$(pwd)/../../../libebml-$EBML \
+  LIBEBML_LIB_DIR=$(pwd)/../../../libebml-$EBML/make/linux \
+  2>&1 | tee $OUTPUT/make-${PRGNAM}_matroska.log
+# Install into a temp directory where vlc can pick it up:
+make install_staticlib install_headers \
+  prefix=$VLCDEPSDIR/usr \
+  includedir=$VLCDEPSDIR/usr/include/matroska \
+  libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  LIBEBML_INCLUDE_DIR=$(pwd)/../../../libebml-$EBML \
+  LIBEBML_LIB_DIR=$(pwd)/../../../libebml-$EBML/make/linux \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_matroska.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+cd $TMP/tmp-$PRGNAM/libmatroska-$MATROSKA
+mkdir -p $VLCDEPSDIR/doc/libmatroska/
+cp ChangeLog LICENSE.LGPL \
+  $VLCDEPSDIR/doc/libmatroska/ || true
+cd $OLDDIR
+}
+
+# -----------------------------------------------------------------------------
+# Compile libmpeg2
+# -----------------------------------------------------------------------------
+make_libmpeg2()
+{
+echo -e "**\n**  libmpeg2 ...\n**"
+cd $TMP/tmp-$PRGNAM/libmpeg2-$MPEG2DEC
+if [ ! -r configure ]; then
+  sh bootstrap
+fi
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_libmpeg2.log
+  #--without-x \
+  #--disable-sdl \
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_libmpeg2.log
+# Install libmpeg2 into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_mbpeg2.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libmpeg2/
+cp AUTHORS COPYING ChangeLog NEWS README TODO \
+  $VLCDEPSDIR/doc/libmpeg2/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile libmpcdec
+# -----------------------------------------------------------------------------
+make_mpcdec()
+{
+echo -e "**\n**  libmpcdec ...\n**"
+cd $TMP/tmp-$PRGNAM/libmpcdec-$MPCDEC
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_mpcdec.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_mpcdec.log
+# Install mpcdec into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_mpcdec.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libmpcdec/
+cp AUTHORS COPYING ChangeLog README \
+  $VLCDEPSDIR/doc/libmpcdec/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile libdvdnav
+# -----------------------------------------------------------------------------
+make_dvdnav()
+{
+echo -e "**\n**  libdvdnav  ...\n**"
+cd $TMP/tmp-$PRGNAM/libdvdnav-$DVDNAV
+
+# Patch to fix aspect ratio in some DVD menus:
+cat $SRCDIR/libdvdnav-resolution.patch | patch -p0 --verbose \
+  2>&1 | tee $OUTPUT/patch-${PRGNAM}_dvdnav.log
+
+CFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+CXXFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+PATH="$VLCDEPSDIR/usr/bin:$PATH" \
+./autogen.sh \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_dvdnav.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_dvdnav.log
+# Install libdvdnav into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_dvdnav.log
+# Make a symlink which vlc-20080730 needs:
+( cd $VLCDEPSDIR/usr/include
+  ln -s dvdread libdvdread
+)
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libdvdnav/
+cp AUTHORS COPYING ChangeLog NEWS README TODO \
+  $VLCDEPSDIR/doc/libdvdnav/ || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile libdvdcss
+# -----------------------------------------------------------------------------
+make_dvdcss()
+{
+echo -e "**\n**  libdvdcss  ...\n**"
+cd $TMP/tmp-$PRGNAM/libdvdcss-$DVDCSS
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --disable-doc \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_dvdcss.log
+  # Shared library needed so that libdvdread can query the library
+  #--disable-shared \
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_dvdcss.log
+# Install libdvdcss into a temp location so libdvdread can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_dvdcss.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libdvdcss/
+cp AUTHORS COPYING ChangeLog NEWS README \
+  $VLCDEPSDIR/doc/libdvdcss/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile libdvdread
+# -----------------------------------------------------------------------------
+make_dvdread()
+{
+echo -e "**\n**  libdvdread  ...\n**"
+cd $TMP/tmp-$PRGNAM/libdvdread-$DVDREAD
+
+./autogen.sh noconfig \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_dvdread.log
+
+#if [ "${USE_PATENTS}" == "YES" ]; then
+#  # If we allow patented software, we also link libdvdcss statically into
+#  # libdvdread. Otherwise, you can just install libdvdcss additionally
+#  # and the dvdread library will find and load dvdcss support at runtime.
+#  cat $SRCDIR/libdvdread_static_dvdcss.patch | patch -p0 --verbose \
+#    2>&1 | tee -a $OUTPUT/patch-${PRGNAM}_dvdread.log
+#  DO_CSS="--with-libdvdcss=$VLCDEPSDIR/usr"
+#else
+#  DO_CSS=""
+#fi
+## Unfortunately, I still cannot get dvdcss statically linked-in:
+DO_CSS=""
+
+CFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+CXXFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  ${DO_CSS} \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee -a $OUTPUT/configure-${PRGNAM}_dvdread.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_dvdread.log
+# Install libdvdread into a temp location so libdvdnav can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_dvdread.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libdvdread/
+cp AUTHORS COPYING ChangeLog NEWS README TODO \
+  $VLCDEPSDIR/doc/libdvdread/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile libcddb
+# -----------------------------------------------------------------------------
+make_cddb()
+{
+echo -e "**\n**  libcddb  ...\n**"
+cd $TMP/tmp-$PRGNAM/libcddb-$CDDB
+CFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+CXXFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_cddb.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_cddb.log
+# Install libcddb into a temp location so cdio and vlc can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_cddb.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libcddb/
+cp ABOUT-NLS AUTHORS COPYING ChangeLog NEWS README THANKS TODO \
+  $VLCDEPSDIR/doc/libcddb/ || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile libcdio
+# -----------------------------------------------------------------------------
+make_cdio()
+{
+echo -e "**\n**  libcdio  ...\n**"
+DO_VCD=${1:-" "}
+cd $TMP/tmp-$PRGNAM/libcdio-$CDIO
+## Patch that allows vlc to detect required libs for cdio:
+#cat $SRCDIR/libcdio-0.80_Makefile.patch | patch -p0 --verbose \
+#  2>1 | tee -a $OUTPUT/patch-${PRGNAM}.log
+## Because of patching a .am file, need to reconf:
+#autoreconf -vif
+CFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+CXXFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --enable-joliet \
+  --enable-rock \
+  --disable-cddb \
+  $DO_VCD \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_cdio.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_cdio.log
+# Install libcdio into a temp location so vlc can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_cdio.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libcdio/
+cp ABOUT-NLS AUTHORS COPYING ChangeLog NEWS README* THANKS TODO \
+  $VLCDEPSDIR/doc/libcdio/  || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile libvcd
+# -----------------------------------------------------------------------------
+make_vcd()
+{
+echo -e "**\n**  libvcd  ...\n**"
+cd $TMP/tmp-$PRGNAM/vcdimager-$VCD
+CFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+CXXFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_vcd.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_vcd.log
+# Install libvcd into a temp location so vlc can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_vcd.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/vcdimager/
+cp AUTHORS BUGS COPYING ChangeLog* FAQ HACKING NEWS README THANKS TODO \
+  $VLCDEPSDIR/doc/vcdimager/  || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile twolame
+# -----------------------------------------------------------------------------
+make_twolame()
+{
+echo -e "**\n**  twolame  ...\n**"
+cd $TMP/tmp-$PRGNAM/twolame-$TWOLAME
+# Fix a bug that gets uncovered by gcc 4.4:
+cat $SRCDIR/twolame-0.3.12_mem.diff | patch -p1 --verbose 2>&1 \
+  | tee $OUTPUT/patch-${PRGNAM}_twolame.log
+# For gcc 4.3 and onwards:
+if [ $(gcc -dumpversion |tr -d  '.' |cut -c 1-2) -ge 43 ]; then
+  cat $SRCDIR/twolame-0.3.12_gcc43.diff | patch -p1 --verbose 2>&1 \
+    | tee -a $OUTPUT/patch-${PRGNAM}_twolame.log
+fi
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --disable-debug \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_twolame.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_twolame.log
+# Install twolame into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_twolame.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/twolame/
+cp AUTHORS COPYING ChangeLog README TODO \
+  $VLCDEPSDIR/doc/twolame/  || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile libdaap
+# -----------------------------------------------------------------------------
+make_daap()
+{
+echo -e "**\n**  libdaap  ...\n**"
+cd $TMP/tmp-$PRGNAM/libopendaap-$DAAP
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --disable-debug \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_daap.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_daap.log
+# Install libdaap into a temp location so vlc can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_daap.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libopendaap/
+cp AUTHORS COPYING ChangeLog NEWS README \
+  $VLCDEPSDIR/doc/libopendaap/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile libupnp
+# -----------------------------------------------------------------------------
+make_upnp()
+{
+echo -e "**\n**  libupnp  ...\n**"
+cd $TMP/tmp-$PRGNAM/libupnp-$UPNP
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --enable-client \
+  --disable-webserver \
+  --disable-samples \
+  --disable-debug \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_upnp.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_upnp.log
+# Install libupnp into a temp location so vlc can pickup the library
+echo -e "\n**\n**\n"
+# The 'make install' will install into $VLCDEPSDIR :
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_upnp.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libupnp/
+cp AUTHORS COPYING ChangeLog LICENSE NEWS README THANKS TODO \
+  $VLCDEPSDIR/doc/libupnp/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile orc
+# -----------------------------------------------------------------------------
+make_orc()
+{
+echo -e "**\n**  orc ...\n**"
+cd $TMP/tmp-$PRGNAM/orc-$ORC
+# Make the static build succeed:
+cat $SRCDIR/orc-0.4.3_static.diff | patch -p1 --verbose \
+  2>&1 | tee $OUTPUT/patch-${PRGNAM}_orc.log
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_orc.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_orc.log
+# Install orc into a temp location so schroedinger can pickup the library
+echo -e "\n**\n**\n"
+# We used --prefix=$VLCDEPSDIR/usr so that schroedinger's build will find the
+# headers in the $VLCDEPS instead of the filesystem root:
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_orc.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/orc/
+cp COPYING README TODO \
+  $VLCDEPSDIR/doc/orc/  || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile schroedinger
+# -----------------------------------------------------------------------------
+make_schroedinger()
+{
+echo -e "**\n**  schroedinger ...\n**"
+if [ "$ARCH" = "x86_64" ]; then
+  ARCHOPTS="--with-pic"
+else
+  ARCHOPTS=""
+fi
+cd $TMP/tmp-$PRGNAM/schroedinger-$SCHROEDINGER
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+PKG_CONFIG_PATH="$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --disable-shared \
+  --with-thread=none \
+  --program-prefix= \
+  --program-suffix= \
+  $ARCHOPTS \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_schroedinger.log
+make  2>&1 | tee $OUTPUT/make-${PRGNAM}_schroedinger.log
+# Install schroedinger into a temp location so vlc can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_schroedinger.log
+# Or else the vlc build wil fail:
+cp schroedinger.pc $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig/schroedinger.pc
+cp schroedinger.pc $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig/schroedinger-1.0.pc
+( cd $VLCDEPSDIR/usr/include
+  ln -sf schroedinger-1.0/schroedinger 
+)
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/schroedinger/
+cp AUTHORS COPYING* NEWS TODO \
+  $VLCDEPSDIR/doc/schroedinger/  || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile speex codec
+# -----------------------------------------------------------------------------
+make_speex()
+{
+echo -e "**\n**  speex  ...\n**"
+cd $TMP/tmp-$PRGNAM/speex-$SPEEX
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_speex.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_speex.log
+# Install speex into a temp location so libshout and vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_speex.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/speex/
+cp AUTHORS COPYING ChangeLog NEWS README* TODO \
+  $VLCDEPSDIR/doc/speex/  || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile libshout
+# -----------------------------------------------------------------------------
+make_shout()
+{
+echo -e "**\n**  libshout  ...\n**"
+cd $TMP/tmp-$PRGNAM/libshout-$SHOUT
+CFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+CPPFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-speex \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_shout.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_shout.log
+# Install libshout into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_shout.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libshout/
+cp COPYING NEWS README \
+  $VLCDEPSDIR/doc/libshout/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile goom
+# -----------------------------------------------------------------------------
+make_goom()
+{
+echo -e "**\n**  goom  ...\n**"
+# First, fix a blatant bug in the archive:
+find $TMP/tmp-$PRGNAM/goom${GOOM} -type d -exec chmod 755 {} \;
+cd $TMP/tmp-$PRGNAM/goom${GOOM}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_goom.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_goom.log
+# Install libgoom into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_goom.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/goom/
+cp AUTHORS COPYING ChangeLog KNOWNBUGS NEWS README \
+  $VLCDEPSDIR/doc/goom/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile projectM
+# -----------------------------------------------------------------------------
+make_projectm()
+{
+echo -e "**\n**  projectm  ...\n**"
+cd $TMP/tmp-$PRGNAM/projectM-${PROJECTM}-Source
+
+# Fix linking - get rid of unresolved symbols at runtime:
+cat $SRCDIR/projectM_static.patch | patch -p1 --verbose \
+  2>&1 | tee $OUTPUT/patch-${PRGNAM}_projectm.log
+
+# We need to redefine the presets etc path:
+sed -i -e "s#share/projectM#share/vlc/projectM#" $(grep -lr 'share/projectM' .)
+
+mkdir build
+cd build
+  CFLAGS="$SLKCFLAGS" \
+  CXXFLAGS="$SLKCFLAGS" \
+  LDFLAGS="$SLKLDFLAGS" \
+  cmake \
+    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
+    -DUSE_FTGL:BOOL=OFF \
+    -DUSE_NATIVE_GLEW:BOOL=OFF \
+    -DINCLUDE-PROJECTM-LIBVISUAL:BOOL=OFF \
+    -DINCLUDE-PROJECTM-PULSEAUDIO:BOOL=OFF \
+    -DINCLUDE-PROJECTM-QT:BOOL=OFF \
+    -DDISABLE_NATIVE_PRESETS:BOOL=ON \
+    -DBUILD_PROJECTM_STATIC:BOOL=ON \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DLIB_SUFFIX=${LIBDIRSUFFIX} \
+    .. \
+    2>&1 | tee $OUTPUT/cmake-${PRGNAM}_projectm.log
+  make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_projectm.log
+  # Install projectm into a temp location so vlc can pickup the library
+  make install DESTDIR=$VLCDEPSDIR \
+    2>&1 | tee -a $OUTPUT/make-${PRGNAM}_projectm.log
+  ## These are being forgotten...
+  cp Renderer/libRenderer.a MilkdropPresetFactory/libMilkdropPresetFactory.a \
+    $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/
+cd ..
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/projectm/
+cp COPYING ChangeLog $VLCDEPSDIR/doc/projectm/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile ggi
+# -----------------------------------------------------------------------------
+make_ggi()
+{
+echo -e "**\n**  ggi  ...\n**"
+INDIR=$(pwd)
+# First libgii which is a dependency
+cd $TMP/tmp-$PRGNAM/ggi-${GGI}-bundle/libgii-$GII
+# Do not add '-fPIC' or "undefined reference to `ggGetSwarType'" will occur
+# when building cpuinfo:
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --sysconfdir=/usr/share/vlc/etc \
+  --enable-static \
+  --disable-shared \
+  --disable-debug \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_ggi.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_ggi.log
+# Install gii into a temp location so libggi can pickup the library
+echo -e "\n**\n**\n"
+make sysconfdir=$VLCDEPSDIR/etc install \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_ggi.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libgii/
+cp ChangeLog* FAQ NEWS README \
+  $VLCDEPSDIR/doc/libgii/  || true
+
+# Next, libggi
+cd $TMP/tmp-$PRGNAM/ggi-${GGI}-bundle/libggi-$GGI
+CFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+CPPFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --sysconfdir=/usr/share/vlc/etc \
+  --enable-static \
+  --disable-shared \
+  --disable-debug \
+  --with-gii=$VLCDEPSDIR/usr \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee -a $OUTPUT/configure-${PRGNAM}_ggi.log
+make -j${NUMJOBS} 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_ggi.log
+# Install ggi into a temp location so vlc can pickup the library
+echo -e "\n**\n**\n"
+make sysconfdir=$VLCDEPSDIR/etc install \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_ggi.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libggi/
+cp ChangeLog* FAQ NEWS README \
+  $VLCDEPSDIR/doc/libggi/  || true
+
+cd $INDIR
+}
+
+# -----------------------------------------------------------------------------
+# Compile x264
+# -----------------------------------------------------------------------------
+make_x264()
+{
+echo -e "**\n**  x264  ...\n**"
+if [ "$ARCH" = "x86_64" ]; then
+  ARCHOPTS="--enable-pic"
+else
+  ARCHOPTS=""
+fi
+cd $TMP/tmp-$PRGNAM/x264-snapshot-${X264}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  $ARCHOPTS \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_x264.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_x264.log
+# Install x264 into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_x264.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/x264/
+cp AUTHORS COPYING \
+  $VLCDEPSDIR/doc/x264/  || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile dv
+# -----------------------------------------------------------------------------
+make_dv()
+{
+echo -e "**\n**  dv  ...\n**"
+cd $TMP/tmp-$PRGNAM/libdv-${DV}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --disable-gtk \
+  --disable-xv \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_dv.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_dv.log
+# Install dv into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_dv.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libdv/
+cp AUTHORS COPYING COPYRIGHT ChangeLog NEWS README* TODO \
+  $VLCDEPSDIR/doc/libdv/  || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile libdvbpsi library
+# -----------------------------------------------------------------------------
+make_dvbpsi()
+{
+echo -e "**\n**  dvbpsi ...\n**"
+cd $TMP/tmp-$PRGNAM/libdvbpsi-${DVBPSI}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --disable-debug \
+  --enable-release \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_dvbpsi.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_dvbpsi.log
+# Install dvbpsi into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_dvbpsi.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libdvbpsi/
+cp AUTHORS COPYING ChangeLog NEWS README \
+  $VLCDEPSDIR/doc/libdvbpsi/  || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile libdca library
+# -----------------------------------------------------------------------------
+make_dca()
+{
+echo -e "**\n**  dca ...\n**"
+cd $TMP/tmp-$PRGNAM/libdca-${DCA}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --disable-debug \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_dca.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_dca.log
+# Install dca into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_dca.log
+# Fix a broken symlink:
+( cd $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}
+  if [ -L libdts.a ] ; then
+    rm -f libdts.a ; ln -s libdca.a libdts.a
+  fi
+)
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libdca/
+cp AUTHORS COPYING ChangeLog NEWS README TODO \
+  $VLCDEPSDIR/doc/libdca/  || true
+cd -
+}
+
+# -----------------------------------------------------------------------------
+# Compile avc1394 raw1394 and dc1394 libraries
+# VLC will use these
+# -----------------------------------------------------------------------------
+make_1394()
+{
+echo -e "**\n**  1394 ...\n**"
+OLDDIR=$(pwd)
+cd $TMP/tmp-$PRGNAM/libraw1394-${RAW1394}
+
+# Or else vlc compilation fails with "error: redefinition of typedef 'byte_t'"
+patch -p0 --verbose < $SRCDIR/libraw1394_typedef.patch \
+  2>&1 | tee -a $OUTPUT/patch-${PRGNAM}_raw1394.log
+
+[ ! -x configure ] && ./autogen.sh
+
+# Seems I need this ugly prefix or else I have to dig into the problem of vlc
+# incorrectly interpreting *.la contents...
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --mandir=/usr/man \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_raw1394.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_raw1394.log
+# Install libraw1394 into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_raw1394.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libraw1394/
+cp AUTHORS COPYING.LIB ChangeLog NEWS README \
+  $VLCDEPSDIR/doc/libraw1394/  || true
+
+echo -e "**\n**"
+
+cd $TMP/tmp-$PRGNAM/libavc1394-${AVC1394}
+
+CFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+CPPFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+LIBRAW1394_CFLAGS="-I$VLCDEPSDIR/usr/include" \
+LIBRAW1394_LIBS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} -lraw1394" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_avc1394.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_avc1394.log
+# Install libavc1394 into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_avc1394.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libavc1394/
+cp AUTHORS COPYING ChangeLog NEWS README TODO \
+  $VLCDEPSDIR/doc/libavc1394/  || true
+
+echo -e "**\n**"
+
+cd $TMP/tmp-$PRGNAM/libdc1394-${DC1394}
+
+# Skip building the examples - those cause errors:
+cat $SRCDIR/libdc1394-noexamples.patch | patch -p1 --verbose \
+  2>&1 | tee $OUTPUT/patch-${PRGNAM}_dc1394.log
+
+# Make sure that the static libdc1394 is found in the vlcdeps:
+CFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+CPPFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} -lraw1394 $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_dc1394.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_dc1394.log
+# Install libdc1394 into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_dc1394.log
+# Fix the pkgconfig file to get rid of unresolved symbols at runtime:
+sed -i -e "/^Libs:/s/$/ -lavc1394 -lraw1394/" $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig/libdc1394-2.pc
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libdc1394/
+cp AUTHORS COPYING ChangeLog NEWS README \
+  $VLCDEPSDIR/doc/libdc1394/  || true
+
+cd $OLDDIR
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile libass
+# -----------------------------------------------------------------------------
+make_ass()
+{
+echo -e "**\n**  ass  ...\n**"
+cd $TMP/tmp-$PRGNAM/libass-$ASS
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_ass.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_ass.log
+# Install libass into a temp location so vlc can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_ass.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libass/
+cp COPYING Changelog $VLCDEPSDIR/doc/libass/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile fluidsynth
+# -----------------------------------------------------------------------------
+make_fluid()
+{
+echo -e "**\n**  fluidsynth  ...\n**"
+cd $TMP/tmp-$PRGNAM/fluidsynth-$FLUID
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --enable-double \
+  --disable-jack-support \
+  --without-readline \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_fluid.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_fluid.log
+# Install fluid into a temp location so vlc can pickup the library
+echo -e "\n**\n**\n"
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_fluid.log
+# Fix a missing link dependency (resolves 'unknown symbols' runtime):
+sed -i -e "/^Libs:/s/$/ -lasound -pthread -lgthread-2.0 -lrt -lglib-2.0/" $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig/fluidsynth.pc
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/fluidsynth/
+cp AUTHORS COPYING ChangeLog NEWS README THANKS TODO \
+  $VLCDEPSDIR/doc/fluidsynth/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile kate
+# -----------------------------------------------------------------------------
+make_kate()
+{
+echo -e "**\n**  kate ...\n**"
+cd $TMP/tmp-$PRGNAM/libkate-${KATE}
+
+# Compatibility patch for libpng14:
+cat $SRCDIR/libkate_png14.patch | patch -p0 --verbose \
+  2>&1 | tee $OUTPUT/patch-${PRGNAM}_kate.log
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+PKG_CONFIG_PATH="$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --disable-valgrind \
+  --disable-doc \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_kate.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_kate.log
+# Install kate into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_kate.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libkate/
+cp AUTHORS COPYING README THANKS \
+  $VLCDEPSDIR/doc/libkate/ || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile libtiger
+# -----------------------------------------------------------------------------
+make_tiger()
+{
+echo -e "**\n**  tiger ...\n**"
+cd $TMP/tmp-$PRGNAM/libtiger-${TIGER}
+
+CFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+CXXFLAGS="-I$VLCDEPSDIR/usr/include $SLKCFLAGS" \
+LDFLAGS="-L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+PKG_CONFIG_PATH="$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+./configure \
+  --prefix=$VLCDEPSDIR/usr \
+  --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --disable-shared \
+  --disable-doc \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_tiger.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_tiger.log
+# Install tiger into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_tiger.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libtiger/
+cp AUTHORS COPYING README THANKS \
+  $VLCDEPSDIR/doc/libtiger/ || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile lua
+# -----------------------------------------------------------------------------
+make_lua()
+{
+echo -e "**\n**  lua ...\n**"
+cd $TMP/tmp-$PRGNAM/lua-${LUA}
+
+# Make it use our CFLAGS:
+sed -i "s/-DLUA_USE_LINUX/\"-DLUA_USE_LINUX $SLKCFLAGS\"/g" src/Makefile
+
+# Fix paths (lib64 for x86_64):
+sed -i "s#/lib#/lib${LIBDIRSUFFIX}#" Makefile
+sed -i "s#/usr/local#/usr#" Makefile
+
+MYLDFLAGS="$SLKLDFLAGS -ld" make linux -j${NUMJOBS} \
+  2>&1 | tee $OUTPUT/make-${PRGNAM}_lua.log
+# Install lua into a temp location so vlc can pickup the library
+make install INSTALL_TOP=$VLCDEPSDIR/usr \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_lua.log
+# Install a pkg-config file:
+install -D -m 0644 etc/lua.pc $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig/lua.pc
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/lua
+cp COPYRIGHT HISTORY README $VLCDEPSDIR/doc/lua/ || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile v4l libraries
+# -----------------------------------------------------------------------------
+make_v4l()
+{
+echo -e "**\n**  v4l ...\n**"
+cd $TMP/tmp-$PRGNAM/v4l-utils-${V4L}
+export CFLAGS="$SLKCFLAGS"
+export CPPFLAGS="$SLKCFLAGS"
+export LDFLAGS="$SLKLDFLAGS"
+make -j${NUMJOBS} LINKTYPE=static PREFIX=$VLCDEPSDIR/usr LIBDIR=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} 2>&1 | tee $OUTPUT/make-${PRGNAM}_v4l.log
+# Strip the static lib to prevent linking errors in 64-bit,
+# and fix the pkg-config file (to fix unresolved symbols in the plugin)
+find . -name "*.a" | xargs strip --strip-unneeded
+sed -i "/^Libs: /s/$/ -lv4l2 -lv4lconvert/" lib/libv4l1/libv4l1.pc
+sed -i "/^Libs: /s/ -lv4l2/ -lv4l2 -lv4lconvert/" lib/libv4l2/libv4l2.pc
+# Install libv4l into a temp directory so that vlc can pick it up later:
+make install LINKTYPE=static PREFIX=$VLCDEPSDIR/usr LIBDIR=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+  2>&1 | tee -a $OUTPUT/make-${PRGNAM}_v4l.log
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/v4l-utils/
+cp COPYING* ChangeLog README* TODO $VLCDEPSDIR/doc/v4l-utils/ || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile libva
+# -----------------------------------------------------------------------------
+make_libva()
+{
+echo -e "**\n**  libva ...\n**"
+cd $TMP/tmp-$PRGNAM/libva-$(echo "$LIBVA" |cut -d- -f1)
+
+#
+# == NOTE ON VAAPI ==
+#
+# VAAPI can enable hardware accelerated playback for MPEG-2/4, H.264/AVC
+# and VC-1 video on certain graphics hardware. 
+# The VAAPI support in this VLC package depends on VA drivers that you have to
+# install yourself for your specific hardware. The drivers should go into
+# directory /usr/lib${LIBDIRSUFFIX}/va/drivers .
+# If you install my libva package you can get MPEG-2 hardware acceleration on
+# Intel graphics. If you additionally install my vdpau-video package, then you
+# get hardware acceleration on Nvidia graphics (with nvidia's binary driver).
+# If you own an Ati card and use the fglrx driver, then you can achieve
+# hardware acceleration by installing the xvba-video driver from here:
+# http://www.splitted-desktop.com/~gbeauchesne/xvba-video/ (since I do not own
+# Ati hardware I can not build a package for xvba-video myself)
+#
+
+# Apply a wad of patches:
+for DPATCH in $(ls debian/patches/*.patch) ; do
+  cat $DPATCH |patch -p1 --verbose
+done 2>&1 | tee $OUTPUT/patch-${PRGNAM}_libva.log
+
+## Slackware uses a newer aclocal:
+autoreconf -vif
+
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --enable-static \
+  --enable-shared \
+  --enable-glx \
+  --with-drivers-path=/usr/lib${LIBDIRSUFFIX}/va/drivers \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_libva.log
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_libva.log
+# Strip the static lib to prevent linking errors in 64-bit,
+find . -name "*.a" | xargs strip --strip-unneeded
+# Install libva into a temp location so vlc can pickup the library
+echo -e "\n**\n**\n"
+make install DESTDIR=$VLCDEPSDIR 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_libva.log
+# Remove the .so and .la files; we want static linking (but still use
+# the drivers in $(libdir)/va/drivers):
+rm -f $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/libva*.so*
+rm -f $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/libva*.la
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/libva/
+cp COPYING $VLCDEPSDIR/doc/libva/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile xulrunner
+# -----------------------------------------------------------------------------
+make_xul()
+{
+echo -e "**\n**  xul ...\n**"
+cd $TMP/tmp-$PRGNAM/mozilla-$(echo $XUL | cut -d. -f1-3)
+
+# Compiling xulrunner takes a long, long time. We will look for a pre-compiled
+# version of the xulrunner SDK in the $SRCDIR and use that instead if available.
+# You can find a tarball of this SDK after the xulrunner compilation has ended;
+# check the ./dist subdirectory in the source tree and copy the file
+# xulrunner-*.sdk.tar.bz2 to the directory containing vlc.SlackBuild.
+MOZSDK=$(ls --indicator-style=none $SRCDIR/xulrunner-${XUL}.*.linux-$(uname -m).sdk.tar.bz2 | tail -1)
+
+if [ -z "$MOZSDK" ]; then
+  # We have to compile it now:
+  export CFLAGS="$SLKCFLAGS"
+  export CXXFLAGS="$SLKCFLAGS"
+  export LDFLAGS="$SLKLDFLAGS"
+  ./configure \
+    --prefix=$VLCDEPSDIR/usr \
+    --libdir=$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} \
+    --disable-shared \
+    --disable-libnotify \
+    --enable-optimize="${CFLAGS}" \
+    --enable-strip \
+    --enable-libxul \
+    --enable-default-toolkit=cairo-gtk2 \
+    --enable-application=xulrunner \
+    --enable-standalone-modules=xpcom,plugin \
+    --build=$ARCH-slackware-linux \
+    2>&1 | tee $OUTPUT/configure-${PRGNAM}_xul.log
+  make MOZ_MAKE_FLAGS="$NUMJOBS" 2>&1 | tee $OUTPUT/make-${PRGNAM}_xul.log
+  # Create an SDK package that we pass to vlc's configure:
+  echo -e "\n**\n**\n"
+  make sdk 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_xul.log
+  tar -C $VLCDEPSDIR/usr -xvf dist/xulrunner-${XUL}*.sdk.tar.bz2
+else
+  # Use our precompiled SDK - compiling it takes ages:
+  echo "Using a precompiled mozilla SDK: $(basename $MOZSDK)"
+  tar -C $VLCDEPSDIR/usr -xvf ${MOZSDK}
+fi
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/xulrunner/
+cp LEGAL LICENSE README.txt $VLCDEPSDIR/doc/xulrunner/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# Compile VP8
+# -----------------------------------------------------------------------------
+make_vpx()
+{
+echo -e "**\n**  vpx  ...\n**"
+if [ "$ARCH" = "i486" -o "" = "i686" ]; then
+  ARCHOPTS="--target=x86-linux-gcc"
+elif [ "$ARCH" = "x86_64" ]; then
+  ARCHOPTS="--target=${ARCH}-linux-gcc --enable-pic"
+else
+  ARCHOPTS="--target=${ARCH}-linux-gcc"
+fi
+cd $TMP/tmp-$PRGNAM/libvpx-${VPX}
+CFLAGS="$SLKCFLAGS" \
+CXXFLAGS="$SLKCFLAGS" \
+LDFLAGS="$SLKLDFLAGS" \
+./configure \
+  --disable-install-bins \
+  --disable-install-srcs \
+  --disable-install-libs \
+  --disable-debug-libs \
+  --enable-postproc \
+  $ARCHOPTS \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}_vpx.log
+  #--disable-examples \ causes errors
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}_vpx.log
+# Install libvpx into a temp location so vlc can pickup the library
+make install 2>&1 | tee -a $OUTPUT/make-${PRGNAM}_vpx.log
+# The build system vor libvpx is not yet mature:
+cp -a --parents vpx/*.h ${VLCDEPSDIR}/usr/include/
+cp -a libvpx.a ${VLCDEPSDIR}/usr/lib${LIBDIRSUFFIX}
+cp -a libvpx_g.a ${VLCDEPSDIR}/usr/lib${LIBDIRSUFFIX}
+# Add DOCS to the vlcdeps to have it added to vlc package later:
+mkdir -p $VLCDEPSDIR/doc/vpx/
+cp AUTHORS CHANGELOG LICENSE README \
+  $VLCDEPSDIR/doc/vpx/  || true
+cd -
+}
+
+
+# -----------------------------------------------------------------------------
+# VLC
+# -----------------------------------------------------------------------------
+make_vlc()
+{
+echo -e "**\n**  VLC ...\n**"
+OLDDIR=$(pwd)
+cd $TMP/tmp-$PRGNAM
+
+# Determine the actual version of the program, and
+# optionally the development branch it came from:
+
+if [ ! -d {PRGNAM}-${SRCVER} ]; then
+  NEWVER=$(ls -1 -d --indicator-style=none vlc-* 2>/dev/null)
+  if [ -n "$NEWVER" ]; then
+    echo "##"
+    echo -n "## Changing vlc VERSION from '$VERSION' to "
+    SRCVER=$(echo $NEWVER | cut -d- -f2-)
+    VERSION=$(echo $SRCVER | tr '-' '.')
+    echo "'$VERSION'"
+    echo "##"
+  else
+    echo "Can not determine which version of VLC I should build!"
+    exit 1
+  fi
+fi
+if [ "$BRANCH" != "master" -a "x$BRANCH" != "x" ]; then
+  VERSION=$(echo "${BRANCH}_${VERSION}" | tr - _)
+fi
+
+# If we build a static Qt4 gui, unset the QT-related environment variables,
+# so that a pre-existing Qt4 will not be picked up and create errors:
+if [ "$STATIC_QT4" = "YES" ]; then
+  unset QTDIR
+  unset QT4DIR
+  NEWPATH="$VLCDEPSDIR/usr/bin"
+  for elem in $(echo $PATH | cut -d: --output-delimiter=' ' -f1-) ; do
+    if ! $(echo "$elem"| grep -q /qt) ; then
+      NEWPATH="$NEWPATH:$elem"
+    fi
+  done
+  export PATH="$NEWPATH"
+fi
+
+cd $TMP/tmp-$PRGNAM/${PRGNAM}-${SRCVER}
+echo "" >$OUTPUT/patch-${PRGNAM}.log
+
+# Configure a default Slackware TTF font:
+cat $SRCDIR/vlc-0.9.0_deffont.patch \
+  | sed -e "s#@@XPREFIX@@#$XPREF#" -e "s#@@LIB@@#lib${LIBDIRSUFFIX}#" \
+  | patch -p1 --verbose 2>&1 | tee -a $OUTPUT/patch-${PRGNAM}.log
+
+# Fix SDL header location:
+sed -i -e "s#SDL_image.h#SDL/&#" -e "s#SDL.h#SDL/&#" $(grep -lr "SDL*.h" .)
+
+# Fix PLUGIN_PATH path for lib64
+sed -i -e 's#/lib/vlc#/usr/lib${LIBDIRSUFFIX}/vlc#g' vlc-config.in.in configure* \
+  2>&1 | tee -a $OUTPUT/patch-${PRGNAM}.log
+
+# Detection of libupnp needs some extra libs:
+cat $SRCDIR/vlc-0.9.0_upnp.patch | patch -p1 --verbose \
+  2>&1 | tee -a $OUTPUT/patch-${PRGNAM}.log
+
+## Fix compilation errors because of redefining gettext
+## (this patch is not needed on slackware > 12.2):
+#cat $SRCDIR/vlc-1.0.0_fixgettext.diff | patch -p1 --verbose \
+#  2>&1 | tee -a $OUTPUT/patch-${PRGNAM}.log
+
+# I want to be able to compile VLC on Slackware 12.2 (glibc 2.7):
+cat $SRCDIR/vlc-1.0.0_allow_older_glibc.diff | patch -p1 --verbose \
+  2>&1 | tee -a $OUTPUT/patch-${PRGNAM}.log
+
+# Fix fullscreen in KDE-4.3.3 and vlc-1.0.3:
+if [ "$VERSION" = "1.0.3" ]; then
+  cat $SRCDIR/vlc-1.0.3_fixfullscreen.diff | patch -p1 --verbose \
+  2>&1 | tee -a $OUTPUT/patch-${PRGNAM}.log
+fi
+
+# Patch the dc1394 plugin (vlc 1.0.x) to use the new libdc1394 2.x API:
+if [ "$(echo $VERSION |cut -d. -f1-2)" = "1.0" ]; then
+  cat $SRCDIR/vlc-1.0.3_ieee1394.diff | patch -p1 --verbose \
+    2>&1 | tee -a $OUTPUT/patch-${PRGNAM}.log
+fi
+
+# Only enable DLL loader on ELF ix86 platforms:
+if [ "$ARCH" == "i486" -o "$ARCH" == "i686" ]; then
+  DO_LOADER="--enable-loader"
+else
+  DO_LOADER=""
+fi
+
+# Only include libs for patented codecs if we are allowing/needing it:
+if [ "${USE_PATENTS}" == "YES" -a "$STATIC_FFMPEG" == "YES" ]; then
+  DO_FFMPEG_LIBS_PAT="-lmp3lame -lfaac"
+else
+  DO_FFMPEG_LIBS_PAT=""
+fi
+
+# If we built a static projectM support library, let's use it properly:
+if [ -d $VLCDEPSDIR/usr/share/vlc/projectM ]; then
+  sed -i -e "s#share/projectM#share/vlc/projectM#" \
+    $(grep -lr 'share/projectM' .)
+  sed -i -e "s#usr/share/fonts/truetype/ttf-dejavu#usr/share/fonts/TTF#" \
+    $(grep -lr 'usr/share/fonts/truetype/ttf-dejavu' .)
+fi
+
+# VLC 0.9.6 but also 0.9.9 needs to regenerate libtool (known bug)
+if ls m4/lt*.m4 1>/dev/null 2>/dev/null ; then
+  rm -f m4/{lt,lib}*.m4; autoreconf -svif
+fi
+
+# vlc checks eventfd availability in glibc rather awkwardly. Our glibc 2.7
+# implements the function but does not export it in a header. Still vlc thinks
+# it can make use of it. NOTE: with glibc 2.8 it will work... have to wait...
+sed -i -e 's/^#ifdef HAVE_EVENTFD/#ifdef HAVE_SYS_EVENTFD_H/' src/misc/objects.c
+
+sh bootstrap
+
+CPPFLAGS="-I$VLCDEPSDIR/usr/include -I$VLCDEPSDIR/usr/include/xulrunner" \
+CFLAGS="-I$VLCDEPSDIR/usr/include -I$VLCDEPSDIR/usr/include/xulrunner $SLKCFLAGS" \
+CXXFLAGS="-I$VLCDEPSDIR/usr/include -I$VLCDEPSDIR/usr/include/xulrunner $SLKCFLAGS" \
+LDFLAGS="-Wl,-Bsymbolic -L$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX} $SLKLDFLAGS" \
+LIBS="-lva -lva-x11 -lX11 -lXext -lXfixes" \
+PKG_CONFIG_PATH="$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/pkgconfig" \
+PROJECTM_LIBS="-lprojectM $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/libMilkdropPresetFactory.a $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/libRenderer.a -lGLU -lGLEW -lGL" \
+PROJECTM2_LIBS="-lprojectM $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/libMilkdropPresetFactory.a $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/libRenderer.a -lGLU -lGLEW -lGL" \
+PATH="$VLCDEPSDIR/usr/bin:$PATH" \
+./configure \
+  --prefix=/usr \
+  --libdir=/usr/lib${LIBDIRSUFFIX} \
+  --sysconfdir=/etc \
+  --mandir=/usr/man \
+  --docdir=/usr/doc/vlc-$VERSION \
+  --localstatedir=/var \
+  --without-contrib \
+  --disable-rpath \
+  --disable-debug \
+  --disable-static \
+  --disable-jack \
+  --disable-gnomevfs \
+  --disable-zvbi \
+  --disable-snapshot \
+  --enable-shared \
+  --enable-optimize-memory=no \
+  --enable-qt4 \
+  --enable-lua \
+  --enable-pvr \
+  --enable-dc1394 \
+  --enable-dv \
+  --enable-dvbpsi \
+  --enable-dvdnav \
+  --with-dvdnav-config-path=$VLCDEPSDIR/usr/bin \
+  --enable-vcdx \
+  --enable-libcddb \
+  --enable-svg \
+  --enable-svgalib \
+  --enable-telx \
+  --enable-libass \
+  --enable-v4l \
+  --enable-caca \
+  --enable-aa \
+  --enable-switcher \
+  --enable-upnp \
+  --enable-flac \
+  --enable-shout \
+  --enable-schroedinger \
+  --enable-live555 \
+  --with-live555-tree=$TMP/tmp-$PRGNAM/live \
+  --enable-real \
+  --enable-realrtsp \
+  --enable-speex \
+  --enable-x264 \
+  --enable-a52 \
+  --with-a52-tree=$TMP/tmp-$PRGNAM/a52dec-$A52 \
+  --enable-faad \
+  --with-faad-tree=$TMP/tmp-$PRGNAM/faad2-$FAAD2 \
+  --enable-twolame \
+  --enable-ogg \
+  --enable-vorbis \
+  --enable-theora \
+  --enable-avcodec \
+  --enable-avformat \
+  --enable-swscale \
+  --enable-id3tag \
+  ${DO_MOZPLUGIN} \
+  ${DO_LOADER} \
+  --enable-run-as-root \
+  --program-prefix= \
+  --program-suffix= \
+  --build=$ARCH-slackware-linux \
+  2>&1 | tee $OUTPUT/configure-${PRGNAM}.log
+
+  # Enabled by default:
+  #--enable-dca \
+  #--with-dca-tree=$TMP/tmp-$PRGNAM/libdca-$DCA \
+
+  # Libdvdnav is now the default (which uses libdvdread in turn)
+  #--enable-dvdread \
+  #--with-dvdread-tree=$TMP/tmp-$PRGNAM/libdvdread-$DVDREAD \
+  #--enable-goom \
+  #--with-goom-tree=$TMP/tmp-$PRGNAM/goom$GOOM \
+  #--enable-ggi \
+
+  # Sometimes skins support breaks and we'll have to disable it:
+  #--disable-skins2 \
+
+  # Got errors about missing sdt.h in ./modules/access/dvb/access.c
+  #--with-dvbpsi-tree=$TMP/tmp-$PRGNAM/libdvbpsi5-${DVBPSI} \
+
+  # Leave this out so that linking the static x264.a into a shared
+  # library works on x86_64: 
+  #--with-x264-tree=$TMP/tmp-$PRGNAM/x264-snapshot-$X264 \
+
+  # Without these, we get also rid of "unknown symbols" runtime
+  #--with-dv-raw1394=$TMP/tmp-$PRGNAM/libraw1394-${RAW1394} \
+  #--with-dv-avc1394=$TMP/tmp-$PRGNAM/libavc1394-${AVC1394} \
+
+  # Deprecated:
+  #--enable-ffmpeg \
+  #--with-ffmpeg-tree=$TMP/tmp-$PRGNAM/ffmpeg-${FFMPEG} \
+  #--enable-daap \
+  #--disable-musicbrainz \
+  #--disable-arts \
+  #--enable-esd \
+  #--with-speex-tree=$TMP/tmp-$PRGNAM/speex-$SPEEX \
+  #--disable-galaktos \
+  #--with-twolame-tree=$TMP/tmp-$PRGNAM/twolame-$TWOLAME \
+  #--with-dv-raw1394-tree=$TMP/tmp-$PRGNAM/libraw1394-${RAW1394} \
+  #--with-dv-avc1394-tree=$TMP/tmp-$PRGNAM/libavc1394-${AVC1394} \
+  #--disable-testsuite \
+  #--enable-release \
+  #--enable-libcdio \
+  #--enable-cddax \
+
+  # Now finds the required libraries without manual tweaking:
+  #AVCODEC_LIBS="-lavcodec -lbz2 -lz ${DO_FFMPEG_LIBS_PAT} -ldl -ltheora -lvorbisenc -lswscale -lavutil -lvorbis -lm -logg" \
+  #AVCODEC_CFLAGS="" \
+
+# At some time, I needed to remove access_mmap from vlc-config because that
+# caused my vlc to die after only a few seconds of playtime...
+# You can test this by adding "--no-file-mmap" as a parameter (or not) to vlc
+# if you did not strip access_mmap from vlc-config:
+#sed -i -e "s/access_mmap//" vlc-config
+
+# Force dtstofloat32 (back) in:
+if ! $(grep -q dtstofloat32 vlc-config) ; then
+  sed -i -e "s/dtstospdif /dtstofloat32 dtstospdif /" vlc-config
+fi
+
+# Now, we are ready for the compile:
+make -j${NUMJOBS} 2>&1 | tee $OUTPUT/make-${PRGNAM}.log
+
+cd $OLDDIR
+}
+
+# -----------------------------------------------------------------------------
+# These routines do all the work of setting up the package contents
+# and creating the actual Slackware packages in $OUTPUT
+# -----------------------------------------------------------------------------
+
+build_mozplugin()
+{
+echo -e "**\n**  mozplugin ...\n**"
+cd $TMP/tmp-$PRGNAM/${PRGNAM}-${SRCVER}
+# Install the mozilla plugin:
+mkdir -p $PKG2/usr/lib${LIBDIRSUFFIX}/mozilla/plugins/
+make -C projects/mozilla DESTDIR=$PKG2 install-strip
+
+mkdir -p $PKG2/install
+cat $SRCDIR/slack-desc.$PRGNAM2 > $PKG2/install/slack-desc
+if [ -f $SRCDIR/slack-required.$PRGNAM2 ]; then
+  cat $SRCDIR/slack-required.$PRGNAM2 > $PKG2/install/slack-required
+fi
+
+cd $PKG2
+makepkg --linkadd y --chown n $OUTPUT/${PRGNAM}-${PRGNAM2}-${VERSION}-${ARCH}-${BUILD}${TAG}.${PKGTYPE} 2>&1 | tee $OUTPUT/makepkg-${PRGNAM}_${PRGNAM2}.log
+cd $OUTPUT
+md5sum ${PRGNAM}-${PRGNAM2}-${VERSION}-${ARCH}-${BUILD}${TAG}.${PKGTYPE} > ${PRGNAM}-${PRGNAM2}-${VERSION}-${ARCH}-${BUILD}${TAG}.${PKGTYPE}.md5
+cd -
+cat $PKG2/install/slack-desc | grep "^${PRGNAM}-${PRGNAM2}" > $OUTPUT/${PRGNAM}-${PRGNAM2}-${VERSION}-${ARCH}-${BUILD}${TAG}.txt
+if [ -f $PKG2/install/slack-required ]; then
+  cat $PKG2/install/slack-required > $OUTPUT/${PRGNAM}-${PRGNAM2}-${VERSION}-${ARCH}-${BUILD}${TAG}.dep
+fi
+
+}
+
+build_slackpkg()
+{
+echo -e "**\n**  building the package ...\n**"
+#
+# Install all the needed stuff to the package dir
+#
+cd $TMP/tmp-$PRGNAM/${PRGNAM}-${SRCVER}
+
+# Use installwatch if available, to produce a logfile of the installation
+# process that is more easily readable:
+if $(which installwatch > /dev/null 2>&1); then
+  installwatch -o $OUTPUT/install-${PRGNAM}.log make DESTDIR=$PKG install
+else
+  make DESTDIR=$PKG install 2>&1 |tee $OUTPUT/install-${PRGNAM}.log
+fi
+
+# Even though I modified vlc-config to exclude access_mmap from building, it
+# does get built... so now we remove it forcibly:
+#rm -f $PKG/usr/lib${LIBDIRSUFFIX}/vlc/access/libaccess_mmap_plugin.*
+
+# We don't want the mozilla plugin here:
+[ -d $PKG/usr/lib${LIBDIRSUFFIX}/mozilla ] && rm -rf $PKG/usr/lib${LIBDIRSUFFIX}/mozilla
+
+# Copy the projectM presets and other requirements into the package if we
+# are adding support for it:
+if [ -d $VLCDEPSDIR/usr/share/vlc/projectM ]; then
+  cp -a $VLCDEPSDIR/usr/share/vlc/projectM $PKG/usr/share/vlc/
+  rm $PKG/usr/share/vlc/projectM/fonts/*
+  ln -sf /usr/share/fonts/TTF/DejaVuSans.ttf $PKG/usr/share/vlc/projectM/fonts/Vera.ttf
+  ln -sf /usr/share/fonts/TTF/DejaVuSansMono.ttf $PKG/usr/share/vlc/projectM/fonts/VeraMono.ttf
+fi
+
+# Copy libggi configuration files into the package if we added support for it:
+if [ -f $VLCDEPSDIR/etc/ggi/libggi.conf ]; then
+  mkdir -p $PKG/usr/share/vlc/etc/
+  cp -a $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/ggi $PKG/usr/share/vlc/
+  cp -a $VLCDEPSDIR/etc/ggi $PKG/usr/share/vlc/etc/
+  sed -i -e "s#$VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/#/usr/share/vlc/#" \
+    $PKG/usr/share/vlc/etc/ggi/*.conf 
+fi
+
+# Copy the vaapi drivers into the package.
+if [ -d $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/vlc/va ]; then
+  cp -a $VLCDEPSDIR/usr/lib${LIBDIRSUFFIX}/vlc/va $PKG/usr/lib${LIBDIRSUFFIX}/vlc/
+fi
+
+# Add this to the doinst.sh:
+mkdir -p $PKG/install
+cat <<EOINS > $PKG/install/doinst.sh
+# Update the desktop database:
+if [ -x usr/bin/update-desktop-database ]; then
+  chroot . /usr/bin/update-desktop-database usr/share/applications > /dev/null
+2>&1
+fi
+
+# Remove old cache data and regenerate the file:
+chroot . <<EOCR 2>/dev/null
+cd /usr/lib${LIBDIRSUFFIX}/vlc
+find . -name "plugins*.dat" -exec rm -f {} \;
+echo "Generating VLC plugins cache data..."
+DISPLAY="" ./vlc-cache-gen -f .
+EOCR
+
+EOINS
+
+## Add the icons to be used in menu entries:
+#mkdir -p $PKG/usr/share/pixmaps
+#convert share/vlc512x512.png -resize 64x64 $PKG/usr/share/pixmaps/vlc.png
+#for res in 16 32 48 64 128; do
+#  mkdir -p  $PKG/usr/share/icons/hicolor/${res}x${res}/apps
+#  convert share/vlc512x512.png -resize ${res}x${res} \
+#    $PKG/usr/share/icons/hicolor/${res}x${res}/apps/vlc.png
+#done
+
+# Add the man page:
+mkdir -p $PKG/usr/man/man1
+gzip -9c doc/vlc.1 > $PKG/usr/man/man1/vlc.1.gz
+
+# Add a vlc log syntax definition file for vim:
+mkdir -p $PKG/$(cd /usr/share/vim/vim*/syntax ; pwd)
+cp extras/analyser/vlc.vim $PKG/$(cd /usr/share/vim/vim*/syntax ; pwd)/
+
+echo "Add package documentation:"
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+mv $PKG/usr/share/doc/vlc/* $PKG/usr/doc/$PRGNAM-$VERSION || true
+rm -rf $PKG/usr/share/doc
+cp -a $DOCS $PKG/usr/doc/$PRGNAM-$VERSION || true
+echo "Add all the supporting packages' documentation too:"
+cp -a $VLCDEPSDIR/doc/* $PKG/usr/doc/$PRGNAM-$VERSION || true
+echo "Add the SlackBuild as well as all patches we used to create the package:"
+cat $SRCDIR/$(basename $0) > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild || true
+( cd $SRCDIR
+  tar -zcf $PKG/usr/doc/$PRGNAM-$VERSION/${PRGNAM}_slackware_patches.tar.gz \
+  *.diff *.patch ltablex.sty || true
+)
+find $PKG/usr/doc -type f -exec chmod 644 {} \;
+chown -R root:root $PKG/usr/doc/$PRGNAM-$VERSION/*
+
+echo "Compress the man page(s):"
+if [ -d $PKG/usr/man ]; then
+  find $PKG/usr/man -type f -name "*.?" -exec gzip -9f {} \;
+  for i in $(find $PKG/usr/man -type l -name "*.?") ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+fi
+
+echo "Strip binaries:"
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" \
+  | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+
+echo "Add a package description:"
+mkdir -p $PKG/install
+cat $SRCDIR/slack-desc > $PKG/install/slack-desc
+if [ -f $SRCDIR/doinst.sh ]; then
+  cat $SRCDIR/doinst.sh >> $PKG/install/doinst.sh
+fi
+if [ -f $SRCDIR/slack-required ]; then
+  cat $SRCDIR/slack-required > $PKG/install/slack-required
+fi
+
+echo "Build the package:"
+cd $PKG
+makepkg --linkadd y --chown n $OUTPUT/${PRGNAM}-$(echo $VERSION |tr '-' '.')-${ARCH}-${BUILD}${TAG}.${PKGTYPE} 2>&1 | tee $OUTPUT/makepkg-${PRGNAM}.log
+cd $OUTPUT
+md5sum ${PRGNAM}-$(echo $VERSION |tr '-' '.')-${ARCH}-${BUILD}${TAG}.${PKGTYPE} > ${PRGNAM}-$(echo $VERSION |tr '-' '.')-${ARCH}-${BUILD}${TAG}.${PKGTYPE}.md5
+cd -
+cat $PKG/install/slack-desc | grep "^${PRGNAM}" > $OUTPUT/${PRGNAM}-$(echo $VERSION |tr '-' '.')-${ARCH}-${BUILD}${TAG}.txt
+if [ -f $PKG/install/slack-required ]; then
+  cat $PKG/install/slack-required > $OUTPUT/${PRGNAM}-$(echo $VERSION |tr '-' '.')-${ARCH}-${BUILD}${TAG}.dep
+fi
+
+}
+
+# -----------------------------------------------------------------------------
+# OK - we wrapped the separate components into convenience functions
+# - now call them one by one:
+# -----------------------------------------------------------------------------
+
+if echo "$*" | grep -qw -- --unwrapvlcdeps ; then
+  # We use a tarball with precompiled binaries instead of compiling all
+  # dependencies at this moment (saves time when all we change is VLC code):
+  if [ "${USE_PATENTS}" == "YES" ]; then
+    DEPSFILE="$SRCDIR/$PRGNAM-vlcdeps_restricted-$ARCH.tar.bz2"
+  else
+    DEPSFILE="$SRCDIR/$PRGNAM-vlcdeps_unrestricted-$ARCH.tar.bz2"
+  fi
+  [ ! -f $DEPSFILE ] && DEPSFILE="$SRCDIR/$PRGNAM-vlcdeps-$ARCH.tar.bz2"
+  cd $TMP/tmp-$PRGNAM
+  echo "Extracting tarball with pre-compiled binary library code..."
+  tar -xvf $DEPSFILE
+  #find . -name "*.la" -exec sed -i -e "s#/usr/share/vlcdeps#$TMP/tmp-$PRGNAM#g" {} \;
+  find . -name "*.la" -exec sed -i -e "s#/mnt/hd#$TMP#g" {} \;
+  cd -
+
+else
+  #if [ "xy" == "x" ]; then
+
+  # Are we building the mozilla plugin?
+  if [ "$MOZPLUGIN" = "YES" ]; then
+    make_xul
+  fi
+
+  # qt4 is used for the vlc gui:
+  if [ "$STATIC_QT4" = "YES" ]; then
+    make_qt4
+  fi
+
+  # If anyone can fix the 'unresolved symbols' in several vlc plugins when
+  # libva is compiled before ffmpeg, let me know!
+  make_libva
+
+  # CD/VCD image support:
+  # Circular dependencies need these loops:
+  make_cdio --disable-vcd-info
+  make_vcd
+  make_cdio
+
+  # vlc wants this, but cdio chokes with "cannot find -lcddb" so build it after
+  # cdio (which only used cddb for the cd-info binary which we don't use):
+  make_cddb
+
+  # DVD support:
+  # I can not get dvdcss statically linked into libdvdread:
+  #make_dvdcss
+  make_dvdread
+  make_dvdnav
+
+  if [ "$STATIC_FFMPEG" == "YES" ]; then
+    # Needed before ffmpeg:
+    make_theora
+    make_vpx
+    make_amr
+    # Only use patented code if we are allowing it:
+    if [ "${USE_PATENTS}" == "YES" ]; then
+      make_lame
+      make_faac
+    fi
+
+    # ffmpeg uses the above static libraries:
+    make_ffmpeg
+  fi
+
+  # Additional libraries that vlc will use:
+  make_faad2
+  make_a52
+  make_dca
+  make_ebml
+  make_matroska
+  make_x264
+  make_libmpeg2
+  make_mpcdec
+  make_twolame
+  #make_daap
+  make_upnp
+  make_orc
+  make_schroedinger
+  make_live555
+  make_ass
+  make_fluid
+  make_1394
+  make_kate
+  make_tiger
+  make_lua
+  make_v4l
+
+  # Visualisations:
+  make_goom
+  make_ggi
+  make_projectm
+
+  # Digital video:
+  make_dv
+  make_dvbpsi
+
+  # Speex before shout and vlc:
+  make_speex
+  make_shout
+
+  #fi # End  ( "xy" == "x" )
+fi
+
+if echo "$*" | grep -qw -- --wrapvlcdeps ; then
+  # Wrap the vlcdeps tree with all pre-compiled dependencies into a tarball:
+  cd $TMP/tmp-$PRGNAM
+  tar -jcf $OUTPUT/$PRGNAM-vlcdeps-$ARCH.tar.bz2 \
+    vlcdeps \
+    a52dec-$A52 \
+    faad2-$FAAD2 \
+    live
+
+  find . -name "*.la" -exec sed -i -e "s#$TMP/tmp-$PRGNAM#/usr/share/vlcdeps#g" {} \;
+  echo "Created vlcdeps binary tarball in '$OUTPUT/$PRGNAM-vlcdeps-$ARCH.tar.bz2'..."
+  cd -
+else
+  # Compile VLC using all the precompiled static libs in $VLCDEPSDIR :
+  make_vlc
+
+  # Should we also build a package for the mozilla plugin?
+  if [ "$MOZPLUGIN" == "YES" ]; then
+    build_mozplugin
+  fi
+
+  # Pack all this stuff into a Slackware package:
+  build_slackpkg "$*"
+fi

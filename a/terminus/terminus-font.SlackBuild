@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=terminus-font
-VERSION=${VERSION:-4.26}
+VERSION=${VERSION:-4.30}
 ARCH=noarch
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}

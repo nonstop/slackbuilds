@@ -6,7 +6,7 @@
 # customary to leave one space after the ':'.
 
    |-----handy-ruler---------------------------------------------------------|
-icu: ICU
+icu: ICU (International Components for Unicode)
 icu:
 icu: ICU is a mature, widely used set of C/C++ and Java libraries for Unicode
 icu: support, software internationalization and globalization (i18n/g11n).
@@ -16,4 +16,5 @@ icu: advanced Unicode/i18n support. ICU is widely portable and gives
 icu: applications the same results on all platforms and between
 icu: C/C++ and Java software.
 icu:
+icu: Homepage: http://site.icu-project.org/
 icu:

@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=imlib2
-VERSION=${VERSION:-1.4.2}
+VERSION=${VERSION:-1.4.4}
 ARCH=${ARCH:-i686}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_evgeny}
@@ -56,7 +56,7 @@ make install DESTDIR=$PKG
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a AUTHORS COPYING COPYING-PLAIN ChangeLog INSTALL NEWS README TODO $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a AUTHORS COPYING COPYING-PLAIN ChangeLog INSTALL README TODO $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 

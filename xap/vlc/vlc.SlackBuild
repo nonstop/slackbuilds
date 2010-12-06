@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Slackware build script for <conky>
+# Slackware build script for <vlc>
 
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
-PRGNAM=conky
-VERSION=${VERSION:-1.8.1}
+PRGNAM=vlc
+VERSION=${VERSION:-1.1.3}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -41,20 +41,20 @@ find . \
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
 ./configure \
-  --prefix=/usr \
-  --sysconfdir=/etc \
-  --localstatedir=/var \
-  --mandir=/usr/man \
-  --enable-lua \
-  --enable-imlib2 \
-  --disable-xdamage
+    --prefix=/usr \
+    --libdir=/usr/lib${LIBDIRSUFFIX} \
+    --sysconfdir=/etc \
+    --mandir=/usr/man \
+    --docdir=/usr/doc/vlc-$VERSION \
+    --localstatedir=/var \
+    --disable-lua
 
 [ "$JOBS" ] && make -j$JOBS || make
-make install-strip DESTDIR=$PKG
+make install DESTDIR=$PKG
 
 ( cd $PKG
   find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
-  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 )
 
 ( cd $PKG/usr/man
@@ -63,7 +63,7 @@ make install-strip DESTDIR=$PKG
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a AUTHORS ChangeLog COPYING INSTALL NEWS README TODO doc/* $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a README ABOUT-NLS AUTHORS HACKING THANKS NEWS INSTALL COPYING ChangeLog $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 

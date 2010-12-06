@@ -1,0 +1,25 @@
+diff --git src/readline.cpp src/readline.cpp
+index 826e62d..eee27aa 100644
+--- src/readline.cpp
++++ src/readline.cpp
+@@ -22,6 +22,7 @@
+ #  include "config.h"
+ #endif
+ 
++#include <stdlib.h>
+ #include <cstdio>
+ #ifdef WITH_READLINE
+ #  include <readline/readline.h>
+diff --git src/utils.cpp src/utils.cpp
+index 5e8d562..3bc9c2f 100644
+--- src/utils.cpp
++++ src/utils.cpp
+@@ -22,6 +22,8 @@
+ #  include "config.h"
+ #endif
+ 
++#include <stdio.h>
++#include <stdlib.h>
+ #include <glib.h>
+ #include <glib/gi18n.h>
+ 
