@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=astyle
-VERSION=${VERSION:-1.22}
+VERSION=${VERSION:-2.01}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -38,27 +38,22 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-cd buildgcc
+cd build/gcc
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
   make release shared static
 mkdir -p $PKG/usr/bin
-cp -a ../bin/astyle $PKG/usr/bin
+cp -a bin/astyle $PKG/usr/bin
 mkdir -p $PKG/usr/lib
-cp -a ../bin/libastyle.* $PKG/usr/lib
+cp -a bin/libastyle.* $PKG/usr/lib
 
 ( cd $PKG
   find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
   find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 )
 
-( cd $PKG/usr/man
-  find . -type f -exec gzip -9 {} \;
-  for i in $( find . -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
-)
-
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a ../doc/* $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a ../../doc/* $PKG/usr/doc/$PRGNAM-$VERSION
 chmod -x $PKG/usr/doc/$PRGNAM-$VERSION/*
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
