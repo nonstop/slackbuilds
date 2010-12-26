@@ -1,0 +1,8 @@
+        |-----handy-ruler------------------------------------------------------|
+cppcheck: cppcheck (a tool for static C/C++ code analysis)
+cppcheck:
+cppcheck: Static analysis of C/C++ code. Checks for: memory leaks, mismatching
+cppcheck: allocation-deallocation, buffer overrun, and many more.
+cppcheck: 
+cppcheck: http://sourceforge.net/projects/cppcheck
+cppcheck: 
