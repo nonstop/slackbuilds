@@ -1,0 +1,12 @@
+   |-----handy-ruler------------------------------------------------------|
+ike: ike (Internet Key exchange daemon and IPsec VPN client)
+ike:
+ike: It provides secure communications between hosts and VPN gateways.
+ike: It offers many of the advanced features only found in expensive 
+ike: commercial software solutions and provides compatibility for VPN 
+ike: appliances produced by vendors such as Cisco, Juniper, Checkpoint, 
+ike: Fortinet, Netgear, Linksys, Zywall and many others
+ike: Written by Shrew Soft Inc under an open source licence
+ike: 
+ike: http://www.shrew.net/download/ike
+ike: 
