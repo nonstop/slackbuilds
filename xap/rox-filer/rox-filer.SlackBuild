@@ -16,11 +16,11 @@ PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
 if [ "$ARCH" = "i486" ]; then
-  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+    SLKCFLAGS="-O2 -march=i486 -mtune=i686"
 elif [ "$ARCH" = "i686" ]; then
-  SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+    SLKCFLAGS="-O2 -march=i686 -mtune=i686"
 elif [ "$ARCH" = "x86_64" ]; then
-  SLKCFLAGS="-O2 -fPIC"
+    SLKCFLAGS="-O2 -fPIC"
 fi
 
 set -e 
@@ -33,10 +33,10 @@ tar xvf $CWD/$PRGNAM-$VERSION.tar.bz2
 cd $PRGNAM-$VERSION
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
-  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
-  -exec chmod 755 {} \; -o \
-  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 \
-  -o -perm 400 \) -exec chmod 644 {} \;
+    \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+    -exec chmod 755 {} \; -o \
+    \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 \
+    -o -perm 400 \) -exec chmod 644 {} \;
 
 CFLAGS="$SLKCFLAGS" CXXFLAGS="$SLKCFLAGS" ./ROX-Filer/AppRun --compile
 
@@ -74,9 +74,9 @@ chmod 0755 $PKG/$BINDIR/rox
 
 # Don't clobber these on upgrades
 cd Choices/MIME-types
-  for file in * ; do 
+for file in * ; do 
     mv $file $PKG/$CHOICESDIR/$file.new ; 
-  done
+done
 cd -
 
 # The doc files are accessible through the UI, so need to be left here, but

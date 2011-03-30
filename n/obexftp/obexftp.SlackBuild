@@ -34,14 +34,14 @@ rm -rf $PKG
 mkdir -p $TMP $PKG
 
 if [ "$ARCH" = "i486" ]; then
-  SLKCFLAGS="-O2 -march=i486 -mtune=i686"
-  LIBDIRSUFFIX=""
+    SLKCFLAGS="-O2 -march=i486 -mtune=i686"
+    LIBDIRSUFFIX=""
 elif [ "$ARCH" = "s390" ]; then
-  SLKCFLAGS="-O2"
-  LIBDIRSUFFIX=""
+    SLKCFLAGS="-O2"
+    LIBDIRSUFFIX=""
 elif [ "$ARCH" = "x86_64" ]; then
-  SLKCFLAGS="-O2 -fPIC"
-  LIBDIRSUFFIX="64"
+    SLKCFLAGS="-O2 -fPIC"
+    LIBDIRSUFFIX="64"
 fi
 
 cd $TMP
@@ -52,66 +52,66 @@ cd ${PKGNAM}-$VERSION || exit 1
 # Make sure ownerships and permissions are sane:
 chown -R root:root .
 find . \
- \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
- -exec chmod 755 {} \; -o \
- \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
- -exec chmod 644 {} \;
+    \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+    -exec chmod 755 {} \; -o \
+    \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+    -exec chmod 644 {} \;
 
 # Configure:
 CFLAGS="$SLKCFLAGS" \
-./configure \
-  --prefix=/usr \
-  --libdir=/usr/lib${LIBDIRSUFFIX} \
-  --sysconfdir=/etc \
-  --disable-static \
-  --mandir=/usr/man \
-  --program-prefix= \
-  --program-suffix= \
-  --build=$ARCH-slackware-linux
+    ./configure \
+    --prefix=/usr \
+    --libdir=/usr/lib${LIBDIRSUFFIX} \
+    --sysconfdir=/etc \
+    --disable-static \
+    --mandir=/usr/man \
+    --program-prefix= \
+    --program-suffix= \
+    --build=$ARCH-slackware-linux
 
 # Build and install:
 make $NUMJOBS INSTALLDIRS=vendor || exit 1
 make install INSTALLDIRS=vendor DESTDIR=$PKG || exit 1
 
 if [ -e $PKG/usr/bin/obexftpd ]; then
-  mkdir -p $PKG/usr/sbin
-  mv $PKG/usr/bin/obexftpd $PKG/usr/sbin/obexftpd
+    mkdir -p $PKG/usr/sbin
+    mv $PKG/usr/bin/obexftpd $PKG/usr/sbin/obexftpd
 fi
 
 ( cd $PKG/usr/bin
-  for link in obexls obexget obexput obexrm ; do
+for link in obexls obexget obexput obexrm ; do
     ln -sf obexftp $link
-  done
-  cd $PKG/usr/man/man1
-  for link in obexls obexget obexput obexrm ; do
+done
+cd $PKG/usr/man/man1
+for link in obexls obexget obexput obexrm ; do
     ln -sf obexftp.1 ${link}.1
-  done
+done
 )
 
 # Strip binaries:
 find $PKG | xargs file | grep -e "executable" -e "shared object" \
-  | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+    | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 
 # Compress and link manpages, if any:
 if [ -d $PKG/usr/man ]; then
-  ( cd $PKG/usr/man
+    ( cd $PKG/usr/man
     for manpagedir in $(find . -type d -name "man*") ; do
-      ( cd $manpagedir
+        ( cd $manpagedir
         for eachpage in $( find . -type l -maxdepth 1) ; do
-          ln -s $( readlink $eachpage ).gz $eachpage.gz
-          rm $eachpage
+            ln -s $( readlink $eachpage ).gz $eachpage.gz
+            rm $eachpage
         done
         gzip -9 *.*
-      )
+        )
     done
-  )
+    )
 fi
 
 # Add a documentation directory:
 mkdir -p $PKG/usr/doc/${PKGNAM}-$VERSION
 cp -a \
-  AUTHORS COPYING ChangeLog INSTALL NEWS README THANKS TODO  \
-  $PKG/usr/doc/${PKGNAM}-$VERSION
+    AUTHORS COPYING ChangeLog INSTALL NEWS README THANKS TODO  \
+    $PKG/usr/doc/${PKGNAM}-$VERSION
 rm -f $PKG/usr/doc/${PKGNAM}-$VERSION/contrib/Makefile*
 
 # Remove perllocal files:
@@ -120,19 +120,19 @@ find $PKG -name perllocal.pod -exec rm "{}" \;
 # This removes our DESTDIR from the packlist filenames, to keep perl's
 # internal inventories consistent and correct.
 find $PKG -name .packlist | while read plist ; do
-  sed -e "s%/share/man%/man%g" \
-      -e "s%$PKG%%g" \
-      -e "s%\.1$%\.1\.gz%g" \
-      -e "s%\.2$%\.2\.gz%g" \
-      -e "s%\.3$%\.3\.gz%g" \
-      -e "s%\.3pm$%\.3pm\.gz%g" \
-      -e "s%\.4$%\.4\.gz%g" \
-      -e "s%\.5$%\.5\.gz%g" \
-      -e "s%\.6$%\.6\.gz%g" \
-      -e "s%\.7$%\.7\.gz%g" \
-      -e "s%\.8$%\.8\.gz%g" \
-      ${plist} > ${plist}.new
-      mv -f ${plist}.new ${plist}
+sed -e "s%/share/man%/man%g" \
+    -e "s%$PKG%%g" \
+    -e "s%\.1$%\.1\.gz%g" \
+    -e "s%\.2$%\.2\.gz%g" \
+    -e "s%\.3$%\.3\.gz%g" \
+    -e "s%\.3pm$%\.3pm\.gz%g" \
+    -e "s%\.4$%\.4\.gz%g" \
+    -e "s%\.5$%\.5\.gz%g" \
+    -e "s%\.6$%\.6\.gz%g" \
+    -e "s%\.7$%\.7\.gz%g" \
+    -e "s%\.8$%\.8\.gz%g" \
+    ${plist} > ${plist}.new
+mv -f ${plist}.new ${plist}
 done
 
 mkdir -p $PKG/install

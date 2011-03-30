@@ -63,13 +63,13 @@ PREFIX=$PKG \
 
 # Don't clobber config files
 ( cd $PKG/etc/shorewall
-  for i in $(ls|grep -v Makefile) ; do
-    mv $i $i.new;
-  done
+for i in $(ls|grep -v Makefile) ; do
+  mv $i $i.new;
+done
 )
 ( cd $PKG/etc/rc.d/
-  mv rc.firewall rc.firewall.new
-  mv rc.shorewall rc.shorewall.new
+mv rc.firewall rc.firewall.new
+mv rc.shorewall rc.shorewall.new
 )
 
 mkdir -p $PKG/var/lock/subsys
@@ -79,7 +79,7 @@ chmod 0644 $PKG/etc/shorewall/* $PKG/etc/rc.d/*
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a \
   COPYING INSTALL changelog.txt releasenotes.txt README.txt known_problems.txt Samples \
-    $PKG/usr/doc/$PRGNAM-$VERSION
+  $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install 
@@ -88,7 +88,7 @@ cat $CWD/doinst.sh > $PKG/install/doinst.sh
 
 for NEW in $PKG/etc/shorewall/*.new;
 do 
-     echo $NEW | sed 's/.*etc/config etc/' >> $PKG/install/doinst.sh
+  echo $NEW | sed 's/.*etc/config etc/' >> $PKG/install/doinst.sh
 done
 
 cd $PKG
