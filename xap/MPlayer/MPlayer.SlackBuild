@@ -46,18 +46,18 @@ SKINVER=${SKINVER:-"1.7"}   # http://www.mplayerhq.hu/design7/dload.html
 # ko mk nb nl pl ro ru sk sv tr uk pt_BR zh_CN zh_TW
 LANGUAGES="en nl fr de es"  # The default is to just add "en" documentation
 
-if [ "$ARCH" = "x86_64" ]; then
-    LIBDIRSUFFIX="64"
-    # --enable-runtime-cpudetection is supported only for x86, x86_64, and PPC
-    EXTRACONFIGUREOPTIONS="--enable-runtime-cpudetection"
-elif [ "$ARCH" = "i486" -o \
-    "$ARCH" = "i586" -o \
-    "$ARCH" = "i686" ]; then
-LIBDIRSUFFIX=""
-EXTRACONFIGUREOPTIONS="--enable-runtime-cpudetection"
-else
-    LIBDIRSUFFIX=""
-    EXTRACONFIGUREOPTIONS=""
+if [ -z "$SLKCFLAGS" ]; then
+    if [ "$ARCH" = "x86_64" ]; then
+        LIBDIRSUFFIX="64"
+        # --enable-runtime-cpudetection is supported only for x86, x86_64, and PPC
+        EXTRACONFIGUREOPTIONS="--enable-runtime-cpudetection"
+    elif [ "$ARCH" = "i486" -o "$ARCH" = "i586" -o "$ARCH" = "i686" ]; then
+        LIBDIRSUFFIX=""
+        EXTRACONFIGUREOPTIONS="--enable-runtime-cpudetection"
+    else
+        LIBDIRSUFFIX=""
+        EXTRACONFIGUREOPTIONS=""
+    fi
 fi
 
 CODECSDIR=/usr/lib${LIBDIRSUFFIX}/codecs   # Where the WIN32 codecs are expected for instance

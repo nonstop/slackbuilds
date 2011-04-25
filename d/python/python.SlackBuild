@@ -35,21 +35,23 @@ mkdir -p $TMP $PKG
 
 # Normally I don't trust -O3, but it is the Python default so
 # I'll assume that in this case it has been well tested.
-if [ "$ARCH" = "i486" ]; then
-    SLKCFLAGS="-O3 -march=i486 -mtune=i686"
-    LIBDIRSUFFIX=""
-elif [ "$ARCH" = "s390" ]; then
-    SLKCFLAGS="-O3"
-    LIBDIRSUFFIX=""
-elif [ "$ARCH" = "x86_64" ]; then
-    SLKCFLAGS="-O3 -fPIC"
-    LIBDIRSUFFIX="64"
-elif [ "$ARCH" = "arm" ]; then
-    SLKCFLAGS="-O3 -march=armv4 -mtune=xscale"
-    LIBDIRSUFFIX=""
-elif [ "$ARCH" = "armel" ]; then
-    SLKCFLAGS="-O3 -march=armv4t"
-    LIBDIRSUFFIX=""
+if [ -z "$SLKCFLAGS" ]; then
+    if [ "$ARCH" = "i486" ]; then
+        SLKCFLAGS="-O3 -march=i486 -mtune=i686"
+        LIBDIRSUFFIX=""
+    elif [ "$ARCH" = "s390" ]; then
+        SLKCFLAGS="-O3"
+        LIBDIRSUFFIX=""
+    elif [ "$ARCH" = "x86_64" ]; then
+        SLKCFLAGS="-O3 -fPIC"
+        LIBDIRSUFFIX="64"
+    elif [ "$ARCH" = "arm" ]; then
+        SLKCFLAGS="-O3 -march=armv4 -mtune=xscale"
+        LIBDIRSUFFIX=""
+    elif [ "$ARCH" = "armel" ]; then
+        SLKCFLAGS="-O3 -march=armv4t"
+        LIBDIRSUFFIX=""
+    fi
 fi
 
 # Location for Python site-packages:
@@ -63,11 +65,13 @@ tar xf $CWD/Python-$VERSION.tar.?z* || exit 1
 cd Python-$VERSION
 
 zcat $CWD/issue1424152-py26.diff.gz |  patch -p0 --verbose || exit 1
-if [ "$ARCH" = "x86_64" ]; then
-    # Install to lib64 instead of lib:
-    zcat $CWD/python.x86_64.diff.gz |  patch -p1 --verbose || exit 1
-    # Python must report /usr/lib64/python2.6/site-packages as python_lib_dir:
-    zcat $CWD/python.pure64.diff.gz |  patch -p1 --verbose || exit 1
+if [ -z "$SLKCFLAGS" ]; then
+    if [ "$ARCH" = "x86_64" ]; then
+        # Install to lib64 instead of lib:
+        zcat $CWD/python.x86_64.diff.gz |  patch -p1 --verbose || exit 1
+        # Python must report /usr/lib64/python2.6/site-packages as python_lib_dir:
+        zcat $CWD/python.pure64.diff.gz |  patch -p1 --verbose || exit 1
+    fi
 fi
 
 chown -R root:root .
