@@ -29,10 +29,10 @@ cd $PRGNAM-$VERSION
 for i in `ls $CWD/*.diff.gz 2> /dev/null` ; do zcat $i | patch -p1 ; done
 
 ./configure \
-  --prefix=/usr \
-  --psfdir=/usr/share/kbd/consolefonts \
-  --acmdir=/usr/share/kbd/consoletrans \
-  --x11dir=/usr/share/fonts/local
+    --prefix=/usr \
+    --psfdir=/usr/share/kbd/consolefonts \
+    --acmdir=/usr/share/kbd/consoletrans \
+    --x11dir=/usr/share/fonts/local
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG TESTDIR=
@@ -47,9 +47,9 @@ cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 cat <<- 'EOT' > $PKG/install/doinst.sh
-    mkfontdir usr/share/fonts/local
-    touch usr/share/fonts/local
-    fc-cache usr/share/fonts/local
+mkfontdir usr/share/fonts/local
+touch usr/share/fonts/local
+fc-cache usr/share/fonts/local
 EOT
 
 cd $PKG
