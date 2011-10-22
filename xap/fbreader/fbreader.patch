@@ -1,0 +1,13 @@
+diff --git fbreader/src/library/Library.cpp fbreader/src/library/Library.cpp
+index 844905c..ad1e4ec 100644
+--- fbreader/src/library/Library.cpp
++++ fbreader/src/library/Library.cpp
+@@ -39,7 +39,7 @@
+ shared_ptr<Library> Library::ourInstance;
+ const size_t Library::MaxRecentListSize = 10;
+ 
+-Library::Library &Library::Instance() {
++Library &Library::Instance() {
+ 	if (ourInstance.isNull()) {
+ 		ourInstance = new Library();
+ 	}
