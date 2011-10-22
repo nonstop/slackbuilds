@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=loki
-VERSION=${VERSION:-0.1.6}
+VERSION=${VERSION:-0.1.7}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
