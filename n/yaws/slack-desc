@@ -1,0 +1,16 @@
+    |-----handy-ruler------------------------------------------------------|
+yaws: yaws (yet another webserver)
+yaws:
+yaws: Yaws is a HTTP high perfomance 1.1 webserver particularly well
+yaws: suited for dynamic-content web applications. Two separate modes of
+yaws: operations are supported:
+yaws:     Standalone mode where Yaws runs as a regular webserver daemon.
+yaws:     Embedded mode where Yaws runs as an embedded webserver in
+yaws:     another Erlang application.
+yaws: Yaws is entirely written in Erlang, and furthermore it is a
+yaws: multithreaded webserver where one Erlang lightweight process is used
+yaws: to handle each client. 
+yaws: 
+yaws: http://yaws.hyber.org/
+yaws: 
+
