@@ -1,0 +1,10 @@
+    |-----handy-ruler------------------------------------------------------|
+soci: soci (database access library for C++)
+soci:
+soci: SOCI is a database access library for C++ that makes the illusion of
+soci: embedding SQL queries in the regular C++ code, staying entirely
+soci: within the Standard C++.
+soci: 
+soci: http://soci.sourceforge.net/
+soci: 
+
