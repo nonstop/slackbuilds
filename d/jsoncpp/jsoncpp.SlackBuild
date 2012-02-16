@@ -43,6 +43,9 @@ CXXFLAGS="$SLKCFLAGS" \
 scons PREFIX=/usr platform=linux-gcc
 python doxybuild.py --open --with-dot --doxygen=`which doxygen`
 
+mkdir -p $PKG/usr/include
+cp -r include/* $PKG/usr/include
+
 mkdir -p $PKG/usr/lib
 for x in so a; do
     pwd
