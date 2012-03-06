@@ -1,0 +1,9 @@
+       |-----handy-ruler------------------------------------------------------|
+jsoncpp: jsoncpp (C++ API to parse JSON)
+jsoncpp:
+jsoncpp: JsonCpp is a simple API to manipulate JSON value, handle
+jsoncpp: serialization and unserialization to string.
+jsoncpp: 
+jsoncpp: http://jsoncpp.sourceforge.net/
+jsoncpp: 
+
