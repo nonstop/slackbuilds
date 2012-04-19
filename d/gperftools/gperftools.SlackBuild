@@ -1,11 +1,11 @@
 #!/bin/sh
 
-# Slackware build script for <google-perftools>
+# Slackware build script for <gperftools>
 
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
-PRGNAM=google-perftools
-VERSION=${VERSION:-1.7}
+PRGNAM=gperftools
+VERSION=${VERSION:-2.0}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}

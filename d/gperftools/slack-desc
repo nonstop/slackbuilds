@@ -1,0 +1,10 @@
+          |-----handy-ruler------------------------------------------------------|
+gperftools: gperftools (performance analysis tools)
+gperftools:
+gperftools: Perf Tools is a collection of a high-performance multi-threaded 
+gperftools: malloc() implementation, plus some pretty nifty performance analysis 
+gperftools: tools.  
+gperftools: 
+gperftools: http://code.google.com/p/google-perftools/
+gperftools: 
+
