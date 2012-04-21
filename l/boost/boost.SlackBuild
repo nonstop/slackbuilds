@@ -7,6 +7,7 @@ VERSION=${VERSION:-1_49_0}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
+DESTDIR=${DESTDIR:-/usr/local}
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/$TAG}
@@ -43,12 +44,11 @@ find . \
 
 ./bootstrap.sh
 
-mkdir -p $PKG/usr/{lib,include}
+mkdir -p $PKG$DESTDIR/{lib,include}
 
-./bjam html
-
+#./bjam html
 ./b2 release \
-    --prefix=$PKG/usr \
+    --prefix=$PKG$DESTDIR/boost-$VERSION \
     install
 
 ( cd $PKG
@@ -56,11 +56,11 @@ find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip
 find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 )
 
-mkdir -p $PKG/usr/doc/$PRGNAM-$PKG_VERSION
-cp -ar doc/html $PKG/usr/doc/$PRGNAM-$PKG_VERSION
-cp -a LICENSE_1_0.txt INSTALL $PKG/usr/doc/$PRGNAM-$PKG_VERSION
-cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$PKG_VERSION/$PRGNAM.SlackBuild
-cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$PKG_VERSION/slack-desc
+mkdir -p $PKG$DESTDIR/doc/$PRGNAM-$PKG_VERSION
+cp -ar doc/html $PKG$DESTDIR/doc/$PRGNAM-$PKG_VERSION
+cp -a LICENSE_1_0.txt INSTALL $PKG$DESTDIR/doc/$PRGNAM-$PKG_VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG$DESTDIR/doc/$PRGNAM-$PKG_VERSION/$PRGNAM.SlackBuild
+cat $CWD/slack-desc > $PKG$DESTDIR/doc/$PRGNAM-$PKG_VERSION/slack-desc
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
