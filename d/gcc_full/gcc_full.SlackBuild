@@ -79,6 +79,14 @@ find . \
 )
 rm -f $PKG/usr/lib${LIBDIRSUFFIX}/*gdb.py
 
+VERSIONED="gcc g++ gcov cpp"
+( cd $PKG/ust/bin
+  for f in $VERSIONED; do
+    mv $f $f-$VERSION
+    ln -s $f-VERSION $f
+  done
+)
+
 ( cd $PKG
   find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
   find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
@@ -94,6 +102,10 @@ rm -f $PKG/usr/lib/libiberty.a
 ( cd $PKG/usr/man
   find . -type f -exec gzip -9 {} \;
   for i in $( find . -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
+  for f in $VERSIONED; do
+    mv $f.1.gz $f-$VERSION.1.gz
+    ln -s $f.1.gz-VERSION $f.1.gz
+  done
 )
 
 gzip -9 $PKG/usr/info/*.info*
