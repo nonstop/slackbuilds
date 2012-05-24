@@ -82,7 +82,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --pid-path=/var/run/nginx.pid \
   --lock-path=/var/lock/nginx \
   --user=${NGINXUSER:=nobody} \
-  --group=${NGINXGROUP:=nogroup} \
+  --group=${NGINXGROUP:=users} \
   --error-log-path=/var/log/nginx/error.log \
   --http-log-path=/var/log/nginx/access.log \
   --with-rtsig_module \
@@ -101,8 +101,10 @@ CXXFLAGS="$SLKCFLAGS" \
   --with-http_stub_status_module \
   --with-http_perl_module \
   --with-perl_modules_path=$installvendorlib \
-  --http-client-body-temp-path=/var/tmp/nginx_client_body_temp \
-  --http-proxy-temp-path=/var/tmp/nginx_proxy_temp \
+  --http-client-body-temp-path=/var/tmp/nginx/client_body_temp \
+  --http-proxy-temp-path=/var/tmp/nginx/proxy_temp \
+  --http-scgi-temp-path=/var/tmp/nginx/scgi_temp \
+  --http-uwsgi-temp-path=/var/tmp/nginx/uwsgi_temp \
   --http-fastcgi-temp-path=/dev/shm \
   --without-mail_pop3_module \
   --without-mail_imap_module \
