@@ -23,7 +23,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=libevent
-VERSION=1.4.14b
+VERSION=${VERSION:-2.0.19}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -72,7 +72,7 @@ CFLAGS="$SLKCFLAGS" \
 make
 make install-strip DESTDIR=$PKG
 
-gzip -9 $PKG/usr/man/man?/*.?
+[ -d $PKG/usr/man ] && gzip -9 $PKG/usr/man/man?/*.?
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a README ChangeLog $PKG/usr/doc/$PRGNAM-$VERSION
