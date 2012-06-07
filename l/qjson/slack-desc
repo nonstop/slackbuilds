@@ -1,0 +1,11 @@
+     |-----handy-ruler------------------------------------------------------|
+qjson: qjson (Json parser for Qt)
+qjson:
+qjson: QJson is a qt-based library that maps JSON data to QVariant objects:
+qjson: JSON arrays will be mapped to QVariantList instances, while JSON
+qjson: objects will be mapped to QVariantMapDescription of application  -
+qjson: this description should be fairly
+qjson:
+qjson: http://qjson.sourceforge.net/
+qjson:
+
