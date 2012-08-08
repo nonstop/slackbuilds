@@ -5,8 +5,8 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=awesome
-SRCVERSION=${PKGVERSION:-3.4.9}
-VERSION=${VERSION:-3.4.9}
+VERSION=${VERSION:-3.4.13}
+SRCVERSION=${PKGVERSION:-$VERSION}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
