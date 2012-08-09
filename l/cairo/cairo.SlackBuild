@@ -21,8 +21,8 @@
 #  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-VERSION=1.8.8
-BUILD=${BUILD:-4}
+VERSION=1.10.2
+BUILD=${BUILD:-3}
 
 # Automatically determine the architecture we're building on:
 if [ -z "$SLKCFLAGS" ]; then
@@ -88,7 +88,10 @@ CFLAGS="$SLKCFLAGS" \
     --disable-quartz \
     --disable-static \
     --disable-win32 \
-    --enable-xcb
+    --enable-xcb \
+    --enable-gl \
+    --enable-xlib-xcb
+
 make $NUMJOBS || make || exit 1
 make install DESTDIR=$PKG
 
