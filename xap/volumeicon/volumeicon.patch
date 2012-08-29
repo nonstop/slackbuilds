@@ -1,0 +1,16 @@
+diff --git src/alsa_backend.c src/alsa_backend.c
+index 4635231..da8fa40 100644
+--- src/alsa_backend.c
++++ src/alsa_backend.c
+@@ -22,10 +22,7 @@
+ //##############################################################################
+ 
+ #include <alsa/asoundlib.h>
+-#include <glib/gstring.h>
+-#include <glib/gstdio.h>
+-#include <glib/glist.h>
+-#include <glib/giochannel.h>
++#include <glib.h>
+ 
+ #include "alsa_backend.h"
+ 
