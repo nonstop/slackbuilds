@@ -46,6 +46,10 @@ find . \
 
 mkdir -p $PKG/$LIBDIR/$PRGNAM
 mv $TMP/$PRGNAM-$VERSION/{bin,lib,man,misc,src} $PKG/$LIBDIR/$PRGNAM
+chmod +x $PKG/$LIBDIR/$PRGNAM/bin/*
+for f in `find $PKG/$LIBDIR/$PRGNAM/bin -type f`; do
+    file "$f" | grep 'DOS batch file' > /dev/null && chmod -x "$f"
+done
 
 # No need to install these with a .new extension
 mkdir -p $PKG/etc/profile.d
