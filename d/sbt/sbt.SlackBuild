@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# Slackware build script for sbt
+
+# Written by Ben Mendis <ben.mendis@gmail.com>
+
+PRGNAM=sbt
+VERSION=${VERSION:-0.12.0}
+BUILD=${BUILD:-1}
+TAG=${TAG:-_evgeny}
+
+ARCH=noarch
+
+CWD=$(pwd)
+TMP=${TMP:-/tmp/$TAG}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+set -e
+
+rm -rf $PKG $TMP/sbt
+mkdir -p $TMP $PKG $OUTPUT
+mkdir -p $PKG/usr/share/sbt
+
+pwd
+cd $TMP
+pwd
+tar -xzf $CWD/$PRGNAM-$VERSION.tgz
+pwd
+ls
+[ "$TEST_BUILD" ] || chown -R root:root sbt
+find sbt \
+    \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+    -exec chmod 755 {} \; -o \
+    \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+    -exec chmod 644 {} \;
+cp -r sbt/* $PKG/usr/share/sbt
+find $PKG/usr/share/sbt/bin -type f -exec chmod -x {} \;
+chmod 755 $PKG/usr/share/sbt/bin/sbt
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
+cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
+
+mkdir -p $PKG/install
+cat $CWD/slack-desc > $PKG/install/slack-desc
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-txz}
