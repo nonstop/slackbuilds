@@ -1,0 +1,12 @@
+      |-----handy-ruler------------------------------------------------------|
+davfs2: davfs2 (Mount a WebDAV resource as a regular file system.)
+davfs2:
+davfs2: Web Distributed Authoring and Versioning (WebDAV), an extension to
+davfs2: the HTTP-protocol, allows authoring of resources on a remote web
+davfs2: server. davfs2 provides the ability to access such resources like a
+davfs2: typical filesystem, allowing for use by standard applications with no
+davfs2: built-in support for WebDAV.
+davfs2:
+davfs2: http://savannah.nongnu.org/projects/davfs2
+davfs2:
+
