@@ -1,0 +1,36 @@
+diff --git examples/Makefile.am examples/Makefile.am
+index 6f3fece..5a30357 100644
+--- examples/Makefile.am
++++ examples/Makefile.am
+@@ -60,15 +60,15 @@ AM_CFLAGS			=\
+ 			`pkg-config gtk+-2.0 --cflags`
+ 
+ 
+-LDADD 			= $(top_builddir)/gtk/libgtkdatabox.la\
+-		 	@GTK_LIBS@
++LDADD 			= $(top_builddir)/gtk/libgtkdatabox.la -lm \
++		 	@GTK_LIBS@ -lm
+ 
+ 
+ if BUILD_LIBGLADE
+ basics_libglade_LDADD	= $(top_builddir)/gtk/libgtkdatabox.la \
+ 			$(top_builddir)/glade/libdatabox.la \
+ 		 	@GTK_LIBS@ \
+-			@LIBGLADE_LIBS@
++			@LIBGLADE_LIBS@ -lm
+ else
+ basics_libglade_LDADD = $(LDADD)
+ endif
+diff --git gtk/Makefile.am gtk/Makefile.am
+index ab7825c..2a83c6e 100644
+--- gtk/Makefile.am
++++ gtk/Makefile.am
+@@ -21,7 +21,7 @@ libgtkdatabox_la_SOURCES= \
+ libgtkdatabox_la_LDFLAGS= \
+ 		        -version-info $(LT_CURRENT)\
+ 			-release $(LT_RELEASE)\
+-			@GTK_LIBS@
++			@GTK_LIBS@ -lm
+ 
+ 
+ include_HEADERS		= \

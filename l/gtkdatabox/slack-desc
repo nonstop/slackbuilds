@@ -1,0 +1,11 @@
+          |-----handy-ruler------------------------------------------------------|
+gtkdatabox: gtkdatabox (display large amounts of numerical data fast and easy)
+gtkdatabox:
+gtkdatabox: GtkDatabox is a widget for live display of large amounts of
+gtkdatabox: fluctuating numerical data. Data presentation (e.g. on linear or
+gtkdatabox: logarithmic scales, as dots or lines, with markers/labels) as well
+gtkdatabox: as user interaction (e.g. measuring distances) is easy.
+gtkdatabox: 
+gtkdatabox: http://sourceforge.net/projects/gtkdatabox/
+gtkdatabox: 
+

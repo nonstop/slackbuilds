@@ -1,0 +1,13 @@
+diff --git src/Makefile.am src/Makefile.am
+index 966c42a..b861909 100644
+--- src/Makefile.am
++++ src/Makefile.am
+@@ -22,7 +22,7 @@ AM_CPPFLAGS = @PACKAGE_CFLAGS@ \
+ 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
+ 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\"
+ 
+-klavaro_LDADD = @PACKAGE_LIBS@ -lgmodule-2.0
++klavaro_LDADD = @PACKAGE_LIBS@ -lgmodule-2.0 -lgtkdatabox
+ AM_CFLAGS = -Wall
+ 
+ if IS_POSIX
