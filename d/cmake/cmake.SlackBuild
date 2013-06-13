@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=cmake
-VERSION=${VERSION:-2.6.0}
+VERSION=${VERSION:-2.8.10.2}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -48,11 +48,8 @@ CFLAGS="$SLKCFLAGS" \
     CXXFLAGS="$SLKCFLAGS" \
     ../configure \
     --prefix=/usr \
-    --sysconfdir=/etc \
-    --localstatedir=/var \
     --mandir=/man \
-    --docdir=/doc/$PRGNAM-$VERSION \
-    --build=$ARCH-slackware-linux
+    --docdir=/doc/$PRGNAM-$VERSION
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG

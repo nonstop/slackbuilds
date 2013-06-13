@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=terminus-font
-VERSION=${VERSION:-4.32}
+VERSION=${VERSION:-4.38}
 ARCH=noarch
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -28,6 +28,7 @@ cd $PRGNAM-$VERSION
 # apply patches if any
 for i in `ls $CWD/*.diff.gz 2> /dev/null` ; do zcat $i | patch -p1 ; done
 
+chmod +x ./configure
 ./configure \
     --prefix=/usr \
     --psfdir=/usr/share/kbd/consolefonts \
