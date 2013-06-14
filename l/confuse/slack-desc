@@ -1,0 +1,12 @@
+       |-----handy-ruler------------------------------------------------------|
+confuse: LibConfuse (A configuration file parser library)
+confuse:
+confuse: licensed under the terms of the LGPL, and  written  in C. It  supports
+confuse: sections  and  (lists of)  values (strings, integers, floats, booleans
+confuse: or other sections), as  well as some  other  features (such as single/
+confuse: double-quoted strings, environment  variable  expansion, functions and
+confuse: nested include statements). It makes it very easy to add configuration
+confuse: file capability to a program using a simple API.
+confuse:
+confuse: http://www.nongnu.org/confuse/
+confuse:
