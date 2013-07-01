@@ -6,4 +6,5 @@ evince: currently supports pdf, postscript, djvu, tiff and dvi. The goal
 evince: of evince is to replace the multiple document viewers that exist
 evince: on the GNOME Desktop with a single simple application.
 evince: 
- 
+evince: http://ftp.gnome.org/pub/GNOME/sources/evince/
+evince:
