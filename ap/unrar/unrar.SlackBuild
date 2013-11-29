@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=unrar
-VERSION=${VERSION:-4.2.4}
+VERSION=${VERSION:-5.0.13}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -25,7 +25,7 @@ if [ -z "$SLKCFLAGS" ]; then
     fi
 fi
 
-set -e 
+set -e
 
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
@@ -41,18 +41,29 @@ find . \
     \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
     -exec chmod 644 {} \;
 
-CFLAGS="$SLKCFLAGS" \
-    CXXFLAGS="$SLKCFLAGS" \
-    [ "$JOBS" ] && make -j$JOBS -f makefile.unix || make -f makefile.unix
+patch -p1 < $CWD/unrar-5.0.13-soname.patch
+cp -a $TMP/$PRGNAM-$VERSION/ $TMP/libunrar
+
+make -C $TMP/libunrar lib libversion=$VERSION CXXFLAGS="$SLKCFLAGS"
+make CXXFLAGS="$SLKCFLAGS" -f makefile unrar lib
+
 install -D -m 755 unrar $PKG/usr/bin/unrar
+install -D -m 755 $TMP/libunrar/libunrar.so.$VERSION $PKG/usr/lib${LIBDIRSUFFIX}/libunrar.so.$VERSION
+install -D -m 644 dll.hpp "$PKG/usr/include/unrar/dll.hpp"
+
+(
+  cd /usr/lib${LIBDIRSUFFIX}
+  ln -s libunrar.so.$VERSION $PKG/usr/lib${LIBDIRSUFFIX}/libunrar.so
+  ln -s libunrar.so.$VERSION $PKG/usr/lib${LIBDIRSUFFIX}/libunrar.so.5
+)
 
 ( cd $PKG
 find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 )
 
-mkdir -p $PKG/usr/man/man1
-gzip -9c $CWD/unrar.1 > $PKG/usr/man/man1/unrar.1.gz
+mkdir -p $PKG/usr/include/unrar
+cp -a *.cpp *.hpp $PKG/usr/include/unrar
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a *.txt $PKG/usr/doc/$PRGNAM-$VERSION
