@@ -51,6 +51,8 @@ CXXFLAGS="$SLKCFLAGS" \
 [ "$DEBUG" ] && echo "make finished"
 make install DESTDIR=$PKG
 
+(cd $PKG/sbin; for f in mount.davfs umount.davfs; do ln -sf /usr/sbin/$f $f; done)
+
 [ "$DEBUG" ] && echo "make install done: [$PKG]"
 ( cd $PKG
   find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --no-run-if-empty --strip-unneeded 2> /dev/null \
