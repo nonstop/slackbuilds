@@ -1,0 +1,11 @@
+         |-----handy-ruler------------------------------------------------------|
+gengetopt: gengetopt (a tool to write command line option parsing code)
+gengetopt:
+gengetopt: Gengetopt is a tool to generate C code to parse the command line
+gengetopt: arguments argc and argv that are part of every C or C++ program.
+gengetopt: The generated code uses the C library function getopt_long to perform
+gengetopt: the actual command line parsing. 
+gengetopt: 
+gengetopt: https://www.gnu.org/software/gengetopt/
+gengetopt: 
+
