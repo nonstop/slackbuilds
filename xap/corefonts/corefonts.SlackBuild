@@ -1,0 +1,177 @@
+#!/bin/sh
+# $Id: corefonts.SlackBuild,v 1.1.1.3 2009/09/21 13:11:11 root Exp root $
+# Copyright (c) 2007-2009  Eric Hameleers, Eindhoven, NL
+# All rights reserved.
+#
+#   Permission to use, copy, modify, and distribute this software for
+#   any purpose with or without fee is hereby granted, provided that
+#   the above copyright notice and this permission notice appear in all
+#   copies.
+#
+#   THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+#   WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#   MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+#   IN NO EVENT SHALL THE AUTHORS AND COPYRIGHT HOLDERS AND THEIR
+#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+#   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+#   USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#   ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+#   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+#   OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+#   SUCH DAMAGE.
+#
+# By using these fonts you agree to the End User License Agreement (EULA.txt)
+#   found in the package's documentation directory, and of which the
+#   online version is found here:
+#   http://www.microsoft.com/typography/fontpack/eula.htm
+# -----------------------------------------------------------------------------
+#
+# Slackware SlackBuild script 
+# ===========================
+# By:        Eric Hameleers <alien@slackware.com>
+# For:       corefonts
+# Descr:     TrueType core fonts for the web
+# URL:       http://sourceforge.net/projects/corefonts/
+# Needs:     (build time only:) cabextract
+# Changelog:
+# 1.0-1:     02/Nov/2007 by Eric Hameleers <alien@slackware.com>
+#            * Initial build.
+# 1.0-2:     18/Nov/2007 by Eric Hameleers <alien@slackware.com>
+#            * Fixed the download URL. Now the downloaded .exe files will
+#               _really_ be Windows executables, not HTML error text...
+# 1.0-3:     21/sep/2009 by Eric Hameleers <alien@slackware.com>
+#            * Fixed the download URL - again.
+# 
+# Run 'sh corefonts.SlackBuild' to build a Slackware package.
+# The package (.tgz) plus descriptive .txt file are created in /tmp .
+# Install using 'installpkg'. 
+#
+# -----------------------------------------------------------------------------
+
+# Set initial variables:
+
+PRGNAM=corefonts
+VERSION=${VERSION:-1.0}
+ARCH=noarch
+BUILD=${BUILD:-3}
+TAG=${TAG:-_SBo}
+
+# The actual fonts we are going to package are contained in .exe files:
+COREFONTS="andale32.exe webdin32.exe trebuc32.exe georgi32.exe verdan32.exe \
+           comic32.exe arialb32.exe impact32.exe arial32.exe times32.exe \
+           courie32.exe wd97vwr32.exe"
+COREURL="http://downloads.sourceforge.net/project/${PRGNAM}/the%20fonts/final/"
+
+SRCDIR=$(pwd)
+TMP=${TMP:-/tmp/$TAG}
+PKG=$TMP/package-$PRGNAM
+OUTPUT=${OUTPUT:-/tmp}
+
+# Where the fonts go:
+FONTDIR="/usr/share/fonts/TTF"
+
+DOCS="$SRCDIR/EULA.txt $SRCDIR/README.1st"
+
+
+##
+## --- with a little luck, you won't have to edit below this point --- ##
+##
+
+# Exit the script on errors:
+set -e
+trap 'echo "$0 FAILED at line $LINENO!" | tee $OUTPUT/error-${PRGNAM}.log' ERR
+# Catch unitialized variables:
+set -u
+P1=${1:-1}
+
+# Create working directories:
+mkdir -p $TMP/tmp-$PRGNAM # location to build the source
+rm -rf $TMP/tmp-$PRGNAM/*
+mkdir -p $PKG  # place for the package to be built
+rm -rf $PKG/*  # We always erase old package's contents:
+mkdir -p $OUTPUT  # place for the package to be saved
+
+# Core fonts download:
+for SOURCE in $COREFONTS ; do
+  if ! [ -f ${SRCDIR}/${SOURCE} ]; then
+    if ! [ "x${COREURL}" == "x" ]; then
+      SRCURL=${COREURL}/${SOURCE}
+      # Check if the $SRCDIR is writable at all - if not, download to $OUTPUT
+      [ -w "$SRCDIR" ] && SOURCE=$SRCDIR/${SOURCE} || SOURCE=$OUTPUT/${SOURCE}
+      echo "Source '$(basename ${SOURCE})' not available yet..."
+      echo "Will download file to $(dirname $SOURCE)"
+      wget -nv -T 30 -O "${SOURCE}" "${SRCURL}" || true
+      if [ $? -ne 0 -o ! -s "${SOURCE}" ]; then
+        echo "Downloading '$(basename ${SOURCE})' failed.. aborting the build."
+        mv -f "${SOURCE}" "${SOURCE}".FAIL
+        exit 1
+      fi
+    else
+      echo "File '$(basename ${SOURCE})' not available.. aborting the build."
+      exit 1
+    fi
+  fi
+done
+
+if [ "$P1" == "--download" ]; then
+  echo "Download complete."
+  exit 0
+fi
+
+# --- PACKAGE BUILDING ---
+
+echo "++"
+echo "|| $PRGNAM-$VERSION"
+echo "++"
+
+# Check for the availability of the 'cabextract' program. Without it,
+# the script cannot proceed:
+if ! $(which cabextract 1>/dev/null 2>&1); then
+  echo "Required program 'cabextract' not found on the system!"
+  echo "Please download and install a cabextract package first!"
+  echo "  (like from http://www.slackware.com/~alien/slackbuilds/cabextract/)"
+  exit 1
+fi
+
+cd $TMP/tmp-$PRGNAM
+mkdir -p cab-contents
+
+[ -w $SRCDIR  ] && DLDIR=$SRCDIR || DLDIR=$OUTPUT
+for i in ${DLDIR}/*.exe ; do
+  cabextract --lowercase --directory=cab-contents $i
+done
+for i in cab-contents/*.cab ; do
+  cabextract --lowercase --directory=cab-contents $i
+done
+
+chown -R root:root *
+chmod -R u+w,go+r-w,a-s *
+ 
+# Install the fonts into the package dir:
+mkdir -p $PKG$FONTDIR
+cp cab-contents/*.ttf $PKG$FONTDIR
+
+# Post-install script:
+mkdir -p $PKG/install
+cat <<-EOT > $PKG/install/doinst.sh
+	# Update X font indexes and the font cache:
+	if [ -x /usr/bin/mkfontdir ]; then
+	  chroot . /usr/bin/mkfontscale $FONTDIR
+	  chroot . /usr/bin/mkfontdir $FONTDIR
+	fi
+	if [ -x /usr/bin/fc-cache ]; then
+	  chroot . /usr/bin/fc-cache $FONTDIR
+	fi
+	EOT
+
+mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a $DOCS $PKG/usr/doc/$PRGNAM-$VERSION
+chmod -R a-w $PKG/usr/doc/$PRGNAM-$VERSION/*
+
+mkdir -p $PKG/install
+cat $SRCDIR/slack-desc > $PKG/install/slack-desc
+
+cd $PKG
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.txz
+

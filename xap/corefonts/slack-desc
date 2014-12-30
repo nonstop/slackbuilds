@@ -1,0 +1,19 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+         |-----handy-ruler------------------------------------------------------|
+corefonts: corefonts (TrueType core fonts for the web)
+corefonts:
+corefonts: The corefonts package contains the 'TrueType core fonts for the web'
+corefonts: that were once available from
+corefonts: http://www.microsoft.com/typography/fontpack/.
+corefonts: The SlackBuild script will download the actual font archives from
+corefonts: Sourceforge's site at build time. Therefore this package technically
+corefonts: does not 'redistribute' the fonts, it just makes it easy to install
+corefonts: them on a linux system.
+corefonts:
+corefonts: corefonts home: http://sourceforge.net/projects/corefonts/

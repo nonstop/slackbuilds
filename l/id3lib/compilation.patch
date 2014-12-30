@@ -1,0 +1,30 @@
+--- configure
++++ configure
+@@ -10296,7 +10296,6 @@ done
+ 
+ for ac_header in \
+   string                        \
+-  iomanip.h                     \
+ 
+ do
+ as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
+--- include/id3/id3lib_strings.h
++++ include/id3/id3lib_strings.h
+@@ -29,6 +29,7 @@
+ #ifndef _ID3LIB_STRINGS_H_
+ #define _ID3LIB_STRINGS_H_
+ 
++#include <string.h>
+ #include <string>
+ 
+ #if (defined(__GNUC__) && (__GNUC__ >= 3) || (defined(_MSC_VER) && _MSC_VER > 1000))
+--- include/id3/writers.h
++++ include/id3/writers.h
+@@ -28,6 +28,7 @@
+ #ifndef _ID3LIB_WRITERS_H_
+ #define _ID3LIB_WRITERS_H_
+ 
++#include <string.h>
+ #include "id3/writer.h"
+ #include "id3/id3lib_streams.h"
+ //#include <string.h>

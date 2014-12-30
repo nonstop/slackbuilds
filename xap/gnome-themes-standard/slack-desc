@@ -1,0 +1,8 @@
+                     |-----handy-ruler------------------------------------------------------|
+gnome-themes-standard: gnome-themes-standard (themes for the gnome desktop)
+gnome-themes-standard:
+gnome-themes-standard: This package contains a set of default themes for the gnome desktop,
+gnome-themes-standard: but can be used also outside of gnome.
+gnome-themes-standard:
+gnome-themes-standard: homepage: http://www.gnome.org
+gnome-themes-standard:
