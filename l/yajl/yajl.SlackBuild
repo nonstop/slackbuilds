@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=yajl
-VERSION=${VERSION:-2.0.1}
+VERSION=${VERSION:-2.1.0}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -34,9 +34,9 @@ set -e
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf lloyd-$PRGNAM-f4b2b1a
-tar xvf $CWD/lloyd-$PRGNAM-$VERSION-0-gf4b2b1a.tar.gz
-cd lloyd-$PRGNAM-f4b2b1a
+rm -rf lloyd-$PRGNAM-*
+tar xvf $CWD/lloyd-$PRGNAM-$VERSION-0-*.tar.gz
+cd lloyd-$PRGNAM-*
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \

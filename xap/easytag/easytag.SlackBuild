@@ -3,7 +3,7 @@
 # Slackware build script for easytag
 
 PRGNAM=easytag
-VERSION=2.1
+VERSION=2.2.4
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_evgeny}
@@ -11,9 +11,6 @@ CWD=$(pwd)
 TMP=${TMP:-/tmp/$TAG}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
-
-DOCS="COPYING ChangeLog* INSTALL README TODO USERS-GUIDE THANKS \
-    doc/EasyTAG_Documentation.html doc/id3 doc/vorbis"
 
 case "$ARCH" in
     i486)      SLKCFLAGS="-O2 -march=i486 -mtune=i686"
@@ -37,7 +34,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar -xjvf $CWD/$PRGNAM-$VERSION.tar.bz2
+tar -xvf $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
 chmod -R u+w,go+r-w,a-s .
 
@@ -55,13 +52,14 @@ make
 make install-strip DESTDIR=$PKG
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a $DOCS  $PKG/usr/doc/$PRGNAM-$VERSION
+
+for f in $DOCUMENTATION; do
+    [ -f "$f" ] && cp -a $f $PKG/usr/doc/$PRGNAM-$VERSION
+done
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/$PRGNAM.slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.slack-desc
-# We don't need this twice
-rm $PKG/usr/share/easytag/ChangeLog
 
-( cd $PKG/usr/man
+( cd $PKG/usr/share/man
 find . -type f -exec gzip -9 {} \;
 for i in `find . -type l` ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 )

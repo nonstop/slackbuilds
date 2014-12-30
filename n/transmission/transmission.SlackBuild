@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=transmission
-VERSION=${VERSION:-2.82}
+VERSION=${VERSION:-2.84}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -49,8 +49,7 @@ CFLAGS="$SLKCFLAGS" \
     --mandir=/usr/man \
     --enable-daemon \
     --enable-cli \
-    --enable-gtk \
-    --disable-largefile
+    --enable-gtk
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG
