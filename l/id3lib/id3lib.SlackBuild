@@ -45,6 +45,9 @@ find . \
 zcat $CWD/id3lib_3.8.3_UTF16_writing_bug.patch.gz | patch -p1
 ( cd doc ; zcat $CWD/id3lib_Doxyfile.patch.gz | patch -p0 )
 
+cat $CWD/id3lib.patch | patch -p0
+./reconf
+
 CFLAGS="$SLKCFLAGS" \
     CXXFLAGS="$SLKCFLAGS" \
     ./configure \
