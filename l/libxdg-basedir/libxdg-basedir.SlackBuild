@@ -25,13 +25,19 @@ if [ -z "$SLKCFLAGS" ]; then
     fi
 fi
 
+if [ "$ARCG"="x84_64" ]; then
+    LIBDIR=/usr/lib64
+else
+    LIBDIR=/usr/lib
+fi
+
 set -e 
 
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
@@ -41,12 +47,13 @@ find . \
     -exec chmod 644 {} \;
 
 CFLAGS="$SLKCFLAGS" \
-    CXXFLAGS="$SLKCFLAGS" \
-    ./configure \
+CXXFLAGS="$SLKCFLAGS" \
+./autogen.sh \
     --prefix=/usr \
     --sysconfdir=/etc \
     --localstatedir=/var \
-    --mandir=/usr/man
+    --mandir=/usr/man \
+    --libdir=$LIBDIR
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG
@@ -64,5 +71,5 @@ mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.tgz
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.txz
 

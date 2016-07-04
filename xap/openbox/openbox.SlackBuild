@@ -15,6 +15,7 @@ TMP=${TMP:-/tmp/$TAG}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
+LIBDIR=/usr/lib
 if [ -z "$SLKCFLAGS" ]; then
     if [ "$ARCH" = "i486" ]; then
         SLKCFLAGS="-O2 -march=i486 -mtune=i686"
@@ -22,6 +23,7 @@ if [ -z "$SLKCFLAGS" ]; then
         SLKCFLAGS="-O2 -march=i686 -mtune=i686"
     elif [ "$ARCH" = "x86_64" ]; then
         SLKCFLAGS="-O2 -fPIC"
+        LIBDIR=/usr/lib64
     fi
 fi
 
@@ -46,6 +48,7 @@ CFLAGS="$SLKCFLAGS" \
     --prefix=/usr \
     --sysconfdir=/etc \
     --localstatedir=/var \
+    --libdir=$LIBDIR \
     --mandir=/usr/man \
     --docdir=/usr/doc/$PRGNAM-$VERSION
 

@@ -25,6 +25,10 @@ if [ -z "$SLKCFLAGS" ]; then
     fi
 fi
 
+if [ "$ARCH" = "x86_64" ]; then
+    LIBDIRSUFFIX="64"
+fi
+
 set -e 
 
 rm -rf $PKG
@@ -48,6 +52,7 @@ CFLAGS="$SLKCFLAGS" \
     --localstatedir=/var \
     --mandir=/usr/man \
     --without-gconf \
+    --libdir=/usr/lib$LIBDIRSUFFIX \
     --disable-nautilus \
     --disable-nls \
     --disable-scrollkeeper \

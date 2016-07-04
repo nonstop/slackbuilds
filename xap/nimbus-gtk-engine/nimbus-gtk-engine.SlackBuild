@@ -16,6 +16,7 @@ TMP=${TMP:-/tmp/$TAG}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
+LIBDIRSUFFIX=""
 if [ -z "$SLKCFLAGS" ]; then
     if [ "$ARCH" = "i486" ]; then
         SLKCFLAGS="-O2 -march=i486 -mtune=i686"
@@ -24,6 +25,10 @@ if [ -z "$SLKCFLAGS" ]; then
     elif [ "$ARCH" = "x86_64" ]; then
         SLKCFLAGS="-O2 -fPIC"
     fi
+fi
+
+if [ "$ARCH" = "x86_64" ]; then
+    LIBDIRSUFFIX="64"
 fi
 
 set -e 
@@ -47,7 +52,8 @@ CFLAGS="$SLKCFLAGS" \
     --prefix=/usr \
     --sysconfdir=/etc \
     --localstatedir=/var \
-    --mandir=/usr/man
+    --mandir=/usr/man \
+    --libdir=/usr/lib$LIBDIRSUFFIX
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG

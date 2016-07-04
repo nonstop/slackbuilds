@@ -25,6 +25,10 @@ if [ -z "$SLKCFLAGS" ]; then
     fi
 fi
 
+if [ "$ARCH" = "x86_64" ]; then
+    LIBDIRSUFFIX=64
+fi
+
 set -e 
 
 rm -rf $PKG
@@ -47,6 +51,7 @@ CFLAGS="$SLKCFLAGS" \
     --sysconfdir=/etc \
     --localstatedir=/var \
     --mandir=/usr/man \
+    --libdir=/usr/lib$LIBDIRSUFFIX \
     --enable-daemon \
     --enable-cli \
     --enable-gtk
