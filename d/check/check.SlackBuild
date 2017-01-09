@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=check
-VERSION=${VERSION:-0.9.14}
+VERSION=${VERSION:-0.10.0}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -45,6 +45,7 @@ CFLAGS="$SLKCFLAGS" \
     ./configure \
     --prefix=/usr \
     --sysconfdir=/etc \
+    --libdir=/usr/lib$LIBDIRSUFFIX \
     --localstatedir=/var \
     --mandir=/usr/man
 
