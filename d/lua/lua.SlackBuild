@@ -6,13 +6,14 @@
 
 PRGNAM=lua
 VERSION=${VERSION:-5.2.4}
+PKGNAM=lua`echo $VERSION|sed -s 's/5.\([23]\).*/5\1/g'`
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
 
 CWD=$(pwd)
 TMP=${TMP:-/tmp/$TAG}
-PKG=$TMP/package-$PRGNAM
+PKG=$TMP/package-$PKGNAM
 OUTPUT=${OUTPUT:-/tmp}
 LIBDIRSUFFIX=${LIBDIRSUFFIX:-""}
 
@@ -35,7 +36,7 @@ rm -rf $PRGNAM-$VERSION
 tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$VERSION
 pwd
-patch -p0 < $CWD/patch
+patch -p0 < $CWD/patch-$VERSION
 
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
@@ -48,7 +49,8 @@ sed -i "s/MYCFLAGS=.*/MYCFLAGS=$SLKCFLAGS/g" src/Makefile
 
 make linux
 make install DESTDIR=$PKG LIBDIRSUFFIX=$LIBDIRSUFFIX
-make pc | sed -s "s/\/lib\>/\/lib$LIBDIRSUFFIX/g" > lua5.2.pc
+PKGCONFIG_NAME=lua`echo $VERSION|sed -s 's/5.\([23]\).*/5.\1/g'`.pc
+make pc | sed -s "s/\/lib\>/\/lib$LIBDIRSUFFIX/g" > $PKGCONFIG_NAME
 
 ( cd $PKG
 find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
@@ -56,7 +58,7 @@ find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs st
 )
 
 mkdir -p $PKG/usr/lib$LIBDIRSUFFIX/pkgconfig
-find . -name lua5.2.pc -exec cp \{\} $PKG/usr/lib$LIBDIRSUFFIX/pkgconfig \;
+find . -name $PKGCONFIG_NAME -exec cp \{\} $PKG/usr/lib$LIBDIRSUFFIX/pkgconfig \;
 
 ( cd $PKG/usr/man
 find . -type f -exec gzip -9 {} \;
@@ -67,11 +69,11 @@ mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION/extras
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION/html
 cp -a doc/*.html doc/logo.gif doc/lua.css $PKG/usr/doc/$PRGNAM-$VERSION/html
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
-cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
+cat $CWD/slack-desc |sed -s "s/lua:/$PKGNAM:/g" > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
 mkdir -p $PKG/install
-cat $CWD/slack-desc > $PKG/install/slack-desc
+cat $CWD/slack-desc |sed -s "s/lua:/$PKGNAM:/g" > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.tgz
+/sbin/makepkg -l y -c n $OUTPUT/$PKGNAM-$VERSION-$ARCH-$BUILD$TAG.tgz
 
