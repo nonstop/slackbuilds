@@ -38,6 +38,7 @@ rm -rf $PRGNAM-$VERSION
 tar xvf $CWD/v$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
 sed -is "s/^PREFIX *=.*$/PREFIX=\/usr/g" src/Makefile
+patch -p0 < $CWD/lua.patch
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
  \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
