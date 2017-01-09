@@ -1,83 +1,195 @@
 #!/bin/sh
 
-# Slackware build script for <llvm>
+# Slackware build script for llvm
 
-# Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
+# Copyright 2008-2015 Heinz Wiesinger, Amsterdam, The Netherlands
+# Copyright 2012, 2013, 2014, 2015, 2016  Patrick J. Volkerding, Sebeka, MN, USA
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+# THIS SOFTWARE IS PROVIDED BY THE AUTHOR ''AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+# EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PRGNAM=llvm
-PRGNAM2=clang
-VERSION=${VERSION:-3.0}
-ARCH=${ARCH:-i486}
+PKGNAM=llvm
+VERSION=${VERSION:-$(echo llvm-*.tar.xz | rev | cut -f 4- -d . | cut -f 1 -d - | rev)}
 BUILD=${BUILD:-1}
-TAG=${TAG:-_SBo}
 
-CWD=$(pwd)
-TMP=${TMP:-/tmp/$TAG}
-PKG=$TMP/package-$PRGNAM
-OUTPUT=${OUTPUT:-/tmp}
+NUMJOBS=${NUMJOBS:-" -j7 "}
 
-if [ -z "$SLKCFLAGS" ]; then
-    if [ "$ARCH" = "i486" ]; then
-        SLKCFLAGS="-O2 -march=i486 -mtune=i686"
-    elif [ "$ARCH" = "i686" ]; then
-        SLKCFLAGS="-O2 -march=i686 -mtune=i686"
-    elif [ "$ARCH" = "x86_64" ]; then
-        SLKCFLAGS="-O2 -fPIC"
-    fi
+if [ -z "$ARCH" ]; then
+  case "$( uname -m )" in
+    i?86) ARCH=i586 ;;
+    arm*) ARCH=arm ;;
+       *) ARCH=$( uname -m ) ;;
+  esac
 fi
 
-set -e 
+CWD=$(pwd)
+TMP=${TMP:-/tmp}
+PKG=$TMP/package-$PKGNAM
+
+if [ "$ARCH" = "i586" ]; then
+  SLKCFLAGS="-O2 -march=i586 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "i686" ]; then
+  SLKCFLAGS="-O2 -march=i686 -mtune=i686"
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+  SLKCFLAGS="-O2 -fPIC"
+  LIBDIRSUFFIX="64"
+else
+  SLKCFLAGS="-O2"
+  LIBDIRSUFFIX=""
+fi
 
 rm -rf $PKG
-mkdir -p $TMP $PKG $OUTPUT
+mkdir -p $TMP $PKG
 cd $TMP
-rm -rf $PRGNAM-$VERSION.src
-tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
-tar xvf $CWD/$PRGNAM2-$VERSION.tar.gz
-mv $PRGNAM2-$VERSION.src $PRGNAM-$VERSION.src/tools/clang
-cd $PRGNAM-$VERSION.src
+rm -rf $PKGNAM-${VERSION}.src $PKGNAM-${VERSION}
+tar xvf $CWD/$PKGNAM-$VERSION.src.tar.xz || exit 1
+
+cd $PKGNAM-${VERSION}/tools || cd $PKGNAM-${VERSION}.src/tools || exit 1
+  tar xvf $CWD/cfe-$VERSION.src.tar.xz || exit 1
+  mv cfe-${VERSION} clang 2>/dev/null || mv cfe-${VERSION}.src clang || exit 1
+cd ../
+
+cd tools/clang/tools || exit 1
+  tar xvf $CWD/clang-tools-extra-$VERSION.src.tar.xz || exit 1
+  mv clang-tools-extra-${VERSION} extra 2>/dev/null \
+    || mv clang-tools-extra-${VERSION}.src extra || exit 1
+cd ../../../
+
+cd projects || exit 1
+  tar xvf $CWD/compiler-rt-$VERSION.src.tar.xz || exit 1
+  mv compiler-rt-${VERSION} compiler-rt 2>/dev/null \
+    || mv compiler-rt-${VERSION}.src compiler-rt || exit 1
+cd ../
+
+cd projects || exit 1
+  tar xvf $CWD/libcxx-$VERSION.src.tar.xz || exit 1
+  mv libcxx-${VERSION} libcxx 2>/dev/null \
+    || mv libcxx-${VERSION}.src libcxx || exit 1
+cd ../
+
+cd projects || exit 1
+  tar xvf $CWD/libcxxabi-$VERSION.src.tar.xz || exit 1
+  mv libcxxabi-${VERSION} libcxxabi 2>/dev/null \
+    || mv libcxxabi-${VERSION}.src libcxxabi || exit 1
+cd ../
+
+# Support GCC built for i586-slackware-linux:
+zcat $CWD/clang.toolchains.i586.triple.diff.gz | patch -p1 --verbose || exit 1
+
+# Use i586 $ARCH on 32-bit x86:
+sed -r "/ifeq.*CompilerTargetArch/s#i386#i586#g" \
+  -i projects/compiler-rt/make/platform/clang_linux.mk
+
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
-    \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
-    -exec chmod 755 {} \; -o \
-    \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
-    -exec chmod 644 {} \;
+  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 -o -perm 511 \) \
+  -exec chmod 755 {} \; -o \
+  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
+  -exec chmod 644 {} \;
 
-CFLAGS="$SLKCFLAGS" \
-    CXXFLAGS="$SLKCFLAGS" \
-    ./configure \
-    --prefix=/usr \
-    --sysconfdir=/etc \
-    --localstatedir=/var \
-    --mandir=/usr/man \
-    --enable-optimizations \
-    --enable-assertions \
-    --enable-pic
+# need to disable assertions to make llvm thread-safe
+# clang resource dir is a relative path based on the location of the clang binary
+mkdir build
+cd build
+  cmake \
+    -DCMAKE_C_COMPILER="clang" \
+    -DCMAKE_CXX_COMPILER="clang++" \
+    -DCMAKE_C_FLAGS:STRING="$SLKCFLAGS" \
+    -DCMAKE_CXX_FLAGS:STRING="$SLKCFLAGS" \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DLLVM_LIBDIR_SUFFIX=${LIBDIRSUFFIX} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DLLVM_BUILD_LLVM_DYLIB=ON \
+    -DLLVM_DYLIB_EXPORT_ALL=ON \
+    -DLLVM_LINK_LLVM_DYLIB=ON \
+    -DLLVM_ENABLE_RTTI=ON \
+    -DLLVM_ENABLE_FFI=ON \
+    -DLLVM_ENABLE_ASSERTIONS=OFF \
+    -DLLVM_BINUTILS_INCDIR=/usr/include \
+    -DCLANG_RESOURCE_DIR="../lib${LIBDIRSUFFIX}/clang/${VERSION}" \
+    ..
 
-[ "$JOBS" ] && make -j$JOBS || make
-make install DESTDIR=$PKG
+  # breaks with one of the patches above. Maybe revisit later
+  # -DBUILD_SHARED_LIBS=ON \
 
+  make $NUMJOBS VERBOSE=1 || make || exit 1
+  make install DESTDIR=$PKG || exit 1
+cd ..
+
+# Add symlinks for $ARCH-slackware-linux-{clang,clang++}:
+( cd $PKG/usr/bin
+  ln -sf clang $ARCH-slackware-linux-clang
+  ln -sf clang++ $ARCH-slackware-linux-clang++
+)
+
+# install clang-static-analyzer
+for i in ccc c++; do
+  ln -s /usr/libexec/$i-analyzer \
+    $PKG/usr/bin/$i-analyzer || exit 1
+done
+
+## Fix paths in scan-build
+#sed -i "s|\$RealBin/bin|/usr/bin|" \
+#  $PKG/usr/lib$LIBDIRSUFFIX/clang-analyzer/scan-build/scan-build
+#sed -i "s|\$RealBin/sorttable.js|/usr/lib${LIBDIRSUFFIX}/clang-analyzer/scan-build/sorttable.js|" \
+#  $PKG/usr/lib$LIBDIRSUFFIX/clang-analyzer/scan-build/scan-build
+#sed -i "s|\$RealBin/scanview.css|/usr/lib${LIBDIRSUFFIX}/clang-analyzer/scan-build/scanview.css|" \
+#  $PKG/usr/lib$LIBDIRSUFFIX/clang-analyzer/scan-build/scan-build
+#
+## fix strange permissions
+#chmod 755 $PKG/usr/lib$LIBDIRSUFFIX/clang-analyzer/scan-build
+#chmod 755 $PKG/usr/lib$LIBDIRSUFFIX/clang-analyzer/scan-view
+#chmod 755 $PKG/usr/lib$LIBDIRSUFFIX/clang-analyzer/scan-view/Resources
+
+# Install Python bindings
+mkdir -p "$PKG/usr/lib$LIBDIRSUFFIX/python2.7/site-packages"
+cp -a tools/clang/bindings/python/clang "$PKG/usr/lib$LIBDIRSUFFIX/python2.7/site-packages/"
+
+# Compile Python scripts
+python -m compileall "$PKG/usr/lib$LIBDIRSUFFIX/python2.7/site-packages/clang"
+python -O -m compileall "$PKG/usr/lib$LIBDIRSUFFIX/python2.7/site-packages/clang"
+
+# Move man page directory:
+mv $PKG/usr/share/man $PKG/usr/
+
+# Strip binaries:
 ( cd $PKG
-find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
-find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+  find . | xargs file | grep "executable" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
+  find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null
 )
 
-mv $PKG/usr/share/man $PKG/usr/man
-( cd $PKG/usr/man
-find . -type f -exec gzip -9 {} \;
-for i in $( find . -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
-)
+# Compress manual pages:
+find $PKG/usr/man -type f -exec gzip -9 {} \;
+for i in $( find $PKG/usr/man -type l ) ; do
+  ln -s $( readlink $i ).gz $i.gz
+  rm $i
+done
 
-mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a CREDITS* LICENSE* README* $PKG/usr/doc/$PRGNAM-$VERSION
-mv $PKG/usr/docs/llvm/* $PKG/usr/doc/$PRGNAM-$VERSION
-rm -rf $PKG/usr/docs
-cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
-cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
+mkdir -p $PKG/usr/doc/$PKGNAM-$VERSION/clang
+cp -a CREDITS* LICENSE* README* $PKG/usr/doc/$PKGNAM-$VERSION
+cp -a tools/clang/{INSTALL,LICENSE,NOTES,README}* \
+  $PKG/usr/doc/$PKGNAM-$VERSION/clang
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.tgz
+/sbin/makepkg -l y -c n $TMP/$PKGNAM-$VERSION-$ARCH-$BUILD.txz
 
