@@ -44,7 +44,7 @@ mkdir -p $PKG/usr/share/icons
 for d in Flat*; do
     mkdir $PKG/usr/share/icons/$d
     cp -r $d/* $PKG/usr/share/icons/$d
-    sh link-cursors.sh $PKG/usr/share/icons/$d
+    sh $TMP/FlatbedCursors-sources-$VERSION/bin/link-cursors $PKG/usr/share/icons/$d
 done
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION

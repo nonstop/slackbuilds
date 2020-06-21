@@ -1,0 +1,33 @@
+diff --git include/loki/Threads.h include/loki/Threads.h
+index cb44f09..3bce5cc 100644
+--- include/loki/Threads.h
++++ include/loki/Threads.h
+@@ -251,7 +251,6 @@
+             ::pthread_mutex_lock( &atomic_mutex_ );                      \
+             lval = val;                                                  \
+             ::pthread_mutex_unlock( &atomic_mutex_ );                    \
+-            return lval;                                                 \
+         }                                                                \
+                                                                          \
+         static void AtomicAssign(IntType& lval, volatile const IntType& val) \
+@@ -259,7 +258,6 @@
+             ::pthread_mutex_lock( &atomic_mutex_ );                      \
+             lval = val;                                                  \
+             ::pthread_mutex_unlock( &atomic_mutex_ );                    \
+-            return lval;                                                 \
+         }                                                                \
+                                                                          \
+         static IntType AtomicIncrement(volatile IntType& lval, const IntType compare, bool & matches ) \
+diff --git test/Function/FunctionTest.cpp test/Function/FunctionTest.cpp
+index 5106eeb..c9a338b 100644
+--- test/Function/FunctionTest.cpp
++++ test/Function/FunctionTest.cpp
+@@ -754,7 +754,7 @@ static void test_exception()
+         f(5, 4);
+         BOOST_CHECK(false);
+     }
+-    catch(bad_function_call)
++    catch(Loki::bad_function_call)
+     {
+         // okay
+     }

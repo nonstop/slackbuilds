@@ -1,22 +1,53 @@
 #!/bin/bash
 
 # PostgreSQL startup script for Slackware Linux
-# Copyright 2007 Adis Nezirovic <adis _at_ linux.org.ba>
-# Licensed under GNU GPL v2
+#
+# $Revision$
+# $Date$
+#
+# Copyright 2007-2018 Adis Nezirovic <adis_at_linux.org.ba>
+# All rights reserved.
+#
+# Redistribution and use of this script, with or without modification, is
+# permitted provided that the following conditions are met:
+#
+# 1. Redistributions of this script must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
+#  WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+#  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
+#  EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+#  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+#  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+#  OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+#  WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+#  OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+#  ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Do not source this script (since it contains exit() calls)
-
-# Before you can run postgresql you'll need to create the
-# database files in /home/postgres. The following should do
-# the trick.
 #
-#   $ su postgres -c "initdb -D /home/postgres/data"
-#
+# Since version 9.3 this startup script can run multiple PostgreSQL
+# versions on different ports and with different data dirs.
+# 
+# e.g. PG_VERSION=10.2 PG_PORT=6432 /etc/rc.d/rc.@PRGNAM@ start
 
-LOGFILE=/home/postgres/postgresql
-DATADIR=/home/postgres/data
-POSTGRES=/usr/bin/postgres
-PIDFILE=postmaster.pid
+PG_VERSION=${PG_VERSION:-@PG_VERSION@}
+PG_PORT=${PG_PORT:-@PG_PORT@}
+LIBDIRSUFFIX="@LIBDIRSUFFIX@"
+LOGFILE=/var/log/@PRGNAM@-$PG_VERSION
+DATADIR=/var/lib/pgsql/$PG_VERSION/data
+POSTGRES=/usr/lib${LIBDIRSUFFIX}/@PRGNAM@/$PG_VERSION/bin/postgres
+PG_CTL=/usr/lib${LIBDIRSUFFIX}/@PRGNAM@/$PG_VERSION/bin/pg_ctl
+PIDFILE=$DATADIR/postmaster.pid
+
+# oom-killer score
+#
+# http://www.postgresql.org/docs/10.2/static/kernel-resources.html#LINUX-MEMORY-OVERCOMMIT
+PG_OOM_ADJUST_FILE=/proc/self/oom_score_adj
+PG_MASTER_OOM_SCORE_ADJ=-1000
+PG_CHILD_OOM_SCORE_ADJ=0
+PG_ENV="PG_OOM_ADJUST_FILE=$PG_OOM_ADJUST_FILE PG_OOM_ADJUST_VALUE=$PG_CHILD_OOM_SCORE_ADJ"
 
 # Return values (according to LSB):
 # 0 - success
@@ -30,8 +61,8 @@ PIDFILE=postmaster.pid
 
 pg_ctl()
 {
-	CMD="/usr/bin/pg_ctl $@"
-	su - postgres -c "$CMD"
+	CMD="$PG_CTL -o '-p $PG_PORT' $@"
+	su - postgres -c "$PG_ENV $CMD"
 }
 
 if [ ! -f $POSTGRES ]; then
@@ -49,30 +80,22 @@ case "$1" in
 	
 		if [ ! -e $DATADIR/PG_VERSION ]; then
 			echo "You should initialize the PostgreSQL database at location $DATADIR"
+			echo "e.g. su postgres -c \"initdb -D $DATADIR --locale=en_US.UTF-8 -A md5 -W\""
 			exit 6
 		fi
 	
 		if [ $(pgrep -f $POSTGRES) ]; then
 
 			echo "PostgreSQL daemon already running"
-			if [ ! -f $DATADIR/$PIDFILE ]; then
-				echo "Warning: Missing pid file $DATADIR/$PIDFILE"
+			if [ ! -f $PIDFILE ]; then
+				echo "Warning: Missing pid file $PIDFILE"
 			fi
 			exit 1
 
-		else # remove old socket, if it exists and no daemon is running.
-
-			if [ ! -f $DATADIR/$PIDFILE ]; then
-				rm -f /tmp/.s.PGSQL.5432
-				rm -f /tmp/.s.PGSQL.5432.lock
-				pg_ctl start -w -l $LOGFILE -D $DATADIR
-				exit 0
-			else
-				echo "PostgreSQL daemon was not properly shut down"
-				echo "Please remove stale pid file $DATADIR/$PIDFILE"
-				exit 7
-			fi
-
+		else
+			test -e "$PG_OOM_ADJUST_FILE" && echo "$PG_MASTER_OOM_SCORE_ADJ" > "$PG_OOM_ADJUST_FILE"
+			pg_ctl start -w -l $LOGFILE -D $DATADIR
+			exit 0
 		fi	
 	;;
 
@@ -89,7 +112,7 @@ case "$1" in
 	;;
 	
 	"unclean-stop")
-		# Take care: This will abort server process itself
+		# Take care! This will abort server process itself
 		# resulting with database recovery on next start.
 		echo "Shutting down PostgreSQL (immediate)..."
 		pg_ctl stop -l $LOGFILE -D $DATADIR -m immediate
@@ -97,6 +120,7 @@ case "$1" in
 
 	"restart")
 		echo "Restarting PostgreSQL..."
+		test -e "$PG_OOM_ADJUST_FILE" && echo "$PG_MASTER_OOM_SCORE_ADJ" > "$PG_OOM_ADJUST_FILE"
 		pg_ctl restart -l $LOGFILE -D $DATADIR -m smart
 	;;
 
@@ -123,16 +147,16 @@ case "$1" in
 		if [ $(pgrep -f $POSTGRES) ]; then
 			echo "PostgreSQL is running"
 
-			if [ ! -e $DATADIR/$PIDFILE ]; then
-				echo "Warning: Missing pid file $DATADIR/$PIDFILE"
+			if [ ! -e $PIDFILE ]; then
+				echo "Warning: Missing pid file $PIDFILE"
 			fi
 
 			exit 0
 		else
 			echo "PostgreSQL is stopped"
 
-			if [ -e $DATADIR/$PIDFILE ]; then
-				echo "Detected stale pid file $DATADIR/$PIDFILE"
+			if [ -e $PIDFILE ]; then
+				echo "Detected stale pid file $PIDFILE"
 			fi
 
 			exit 0

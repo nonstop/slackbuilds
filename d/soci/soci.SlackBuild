@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=soci
-VERSION=${VERSION:-3.1.0}
+VERSION=${VERSION:-3.2.3}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -29,7 +29,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-unzip $CWD/$PRGNAM-$VERSION.zip
+tar -xzf $CWD/$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$VERSION
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
@@ -38,9 +38,13 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
+if [ -n "$ORACLE_LIB" -a -n "$ORACLE_INCLUDE" ]; then
+    ORA_FLAGS="-DWITH_Oracle=ON -DORACLE_INCLUDE_DIR=$ORACLE_INCLUDE -DORACLE_LIBRARIES=$ORACLE_LIB"
+fi
+echo $ORA_FLAGS
 CFLAGS="$SLKCFLAGS" \
 CXXFLAGS="$SLKCFLAGS" \
-cmake -DCMAKE_INSTALL_PREFIX=/usr -DSYSCONFDIR=/etc .
+cmake -DCMAKE_INSTALL_PREFIX=/usr -DSYSCONFDIR=/etc $ORA_FLAGS .
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG
@@ -51,7 +55,9 @@ make install DESTDIR=$PKG
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a AUTHORS CHANGES LICENSE* README $PKG/usr/doc/$PRGNAM-$VERSION
+for f in AUTHORS CHANGES LICENSE* README; do
+    if [ -e $f]; then cp -a $f $PKG/usr/doc/$PRGNAM-$VERSION; fi
+done
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 

@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=cppcheck
-VERSION=${VERSION:-1.46.1}
+VERSION=${VERSION:-1.76.1}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -40,7 +40,7 @@ find . \
     \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
     -exec chmod 644 {} \;
 
-[ "$JOBS" ] && make -j$JOBS || make
+make
 make install DESTDIR=$PKG
 
 ( cd $PKG
@@ -49,7 +49,7 @@ find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs st
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a readme.txt readme_gui.txt AUTHORS COPYING Changelog $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a readme.txt readme.md AUTHORS COPYING $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 

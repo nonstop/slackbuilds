@@ -1,0 +1,20 @@
+--- src/Makefile	2016-08-02 13:18:08.310168875 +0300
++++ src/Makefile	2016-08-02 13:20:05.418163288 +0300
+@@ -4,14 +4,14 @@
+ SHAREDIR = $(PREFIX)/share/imapfilter
+ MANDIR = $(PREFIX)/man
+ 
+-MYCFLAGS =
++MYCFLAGS = `pkg-config --cflags lua5.2`
+ MYLDFLAGS =
+-MYLIBS =
++MYLIBS = `pkg-config --libs lua5.2`
+ 
+ INCDIRS =
+ LIBDIRS =
+ 
+-LIBLUA = -llua
++LIBLUA =
+ LIBPCRE = -lpcre
+ LIBSSL = -lssl
+ LIBCRYPTO = -lcrypto
