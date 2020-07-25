@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=flatbed-cursors
-VERSION=${VERSION:-0.4}
+VERSION=${VERSION:-0.5.2}
 ARCH=noarch
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -32,20 +32,17 @@ mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
 tar xvf $CWD/FlatbedCursors-sources-$VERSION.tar.bz2
-cd $TMP
-[ "$TEST_BUILD" ] || chown -R root:root .
-find . \
+cd FlatbedCursors-sources-$VERSION
+
+mkdir -p $PKG/usr/share/icons
+ICONSDIR=$PKG/usr/share/icons ./install-all
+
+[ "$TEST_BUILD" ] || chown -R root:root $PKG/usr/share/icons
+find $PKG/usr/share/icons \
     \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
     -exec chmod 755 {} \; -o \
     \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
     -exec chmod 644 {} \;
-
-mkdir -p $PKG/usr/share/icons
-for d in Flat*; do
-    mkdir $PKG/usr/share/icons/$d
-    cp -r $d/* $PKG/usr/share/icons/$d
-    sh $TMP/FlatbedCursors-sources-$VERSION/bin/link-cursors $PKG/usr/share/icons/$d
-done
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
