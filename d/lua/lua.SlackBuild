@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=lua
-VERSION=${VERSION:-5.2.4}
+VERSION=${VERSION:-5.3.5}
 PKGNAM=lua`echo $VERSION|sed -s 's/5.\([23]\).*/5\1/g'`
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
