@@ -1,0 +1,111 @@
+--- configure.ac	2018-11-10 20:24:03.000000000 +0300
++++ configure.ac	2020-10-11 19:48:55.585366923 +0300
+@@ -53,7 +53,7 @@
+ GTHREAD_REQUIRED=2.0.0
+ # Notice: requires gstreamer 1.4
+ GSTREAMER_REQUIRED=1.4
+-APPINDICATOR_REQUIRED=0.3
++dnl APPINDICATOR_REQUIRED=0.3
+ 
+ PKG_CHECK_MODULES(GLIB, glib-2.0 >= $GLIB_REQUIRED)
+ AC_SUBST(GLIB_CFLAGS)
+@@ -87,9 +87,9 @@
+ # Support AppIndicator?
+ # Ref: https://launchpad.net/indicator-application
+ 
+-PKG_CHECK_MODULES(APP_INDICATOR, appindicator3-0.1 >= $APPINDICATOR_REQUIRED)
+-AC_SUBST(APP_INDICATOR_CFLAGS)
+-AC_SUBST(APP_INDICATOR_LIBS)
++dnl PKG_CHECK_MODULES(APP_INDICATOR, appindicator3-0.1 >= $APPINDICATOR_REQUIRED)
++dnl AC_SUBST(APP_INDICATOR_CFLAGS)
++dnl AC_SUBST(APP_INDICATOR_LIBS)
+ 
+ # *************************
+ # Checks for library functions.
+--- src/Makefile.am	2017-01-02 12:47:27.000000000 +0300
++++ src/Makefile.am	2020-10-11 19:49:24.898366057 +0300
+@@ -12,11 +12,11 @@
+     -I$(top_srcdir) \
+     $(GLIB_CFLAGS) $(GIO_CFLAGS) $(GDK_CFLAGS) $(GTK_CFLAGS) \
+     $(GSTREAMER_CFLAGS) $(GSTREAMER_PBUTILS_CFLAGS) $(GTHREAD_CFLAGS) \
+-    $(DBUS_CFLAGS) $(APP_INDICATOR_CFLAGS)
++    $(DBUS_CFLAGS)
+ 
+ LIBS = $(GLIB_LIBS) $(GIO_LIBS) $(GDK_LIBS) $(GTK_LIBS) \
+        $(GSTREAMER_LIBS) $(GSTREAMER_PBUTILS_LIBS) $(GTHREAD_LIBS) \
+-       $(DBUS_LIBS) $(APP_INDICATOR_LIBS) $(MATH_LIB)
++       $(DBUS_LIBS) $(MATH_LIB)
+ 
+ bin_PROGRAMS = audio-recorder
+ 
+--- src/systray-icon.c	2017-10-21 16:01:02.000000000 +0300
++++ src/systray-icon.c	2020-10-12 09:58:39.870860506 +0300
+@@ -32,7 +32,7 @@
+ #include "rec-window.h"
+ #include "rec-manager.h"
+ 
+-#include <libappindicator/app-indicator.h>
++/*#include <libappindicator/app-indicator.h>*/
+ 
+ // Note: Uncomment this to show debug messages from this module
+ //#define DEBUG_SYSTRAY
+@@ -335,18 +335,6 @@
+ 
+     LOG_SYSTRAY("systray_icon_create.\n");
+ 
+-    if (IS_APP_INDICATOR(g_tray_icon)) {
+-        app_indicator_set_status(APP_INDICATOR(g_tray_icon), APP_INDICATOR_STATUS_ACTIVE);
+-        return;
+-    }
+-
+-    g_tray_icon = (GtkWidget*)app_indicator_new("audio-recorder application",
+-                  "audio-recorder-off", APP_INDICATOR_CATEGORY_APPLICATION_STATUS);
+-
+-    g_assert(IS_APP_INDICATOR(g_tray_icon));
+-
+-    app_indicator_set_status(APP_INDICATOR(g_tray_icon), APP_INDICATOR_STATUS_ACTIVE);
+-
+     // Attach a popup-menu
+     g_tray_menu = systray_create_menu(TRUE/*for_tray_icon*/);
+ 
+@@ -357,39 +345,16 @@
+ 
+     // Set initial icon color and menu state
+     systray_set_menu_items1(state);
+-
+-    app_indicator_set_menu(APP_INDICATOR(g_tray_icon), GTK_MENU(g_tray_menu));
+ }
+-
+ static void systray_icon_remove() {
+     if (G_IS_OBJECT(g_tray_menu)) {
+         gtk_widget_destroy(GTK_WIDGET(g_tray_menu));
+     }
+     g_tray_menu = NULL;
+ 
+-    if (IS_APP_INDICATOR(g_tray_icon)) {
+-
+-        LOG_SYSTRAY("systray_icon_remove.\n");
+-
+-        g_object_unref(G_OBJECT(g_tray_icon));
+-    }
+     g_tray_icon = NULL;
+ }
+ 
+ static void systray_set_icon(gchar *icon_name) {
+-    if (!IS_APP_INDICATOR(g_tray_icon)) return;
+-
+-    gchar *s = g_strdup(icon_name);
+-
+-    // Remove file extension ".png"
+-    // Simply find the last '.' and put '\0' on it. This should work fine.
+-    gchar *pos = g_strrstr(s, ".");
+-    if (pos) {
+-        *pos = '\0';
+-    }
+-
+-    app_indicator_set_icon(APP_INDICATOR(g_tray_icon), s);
+-    g_free(s);
++    return;
+ }
+-
+-
