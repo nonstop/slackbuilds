@@ -1,0 +1,31 @@
+diff --git src/mount_davfs.c src/mount_davfs.c
+index d46c522..b05e3ba 100644
+--- src/mount_davfs.c
++++ src/mount_davfs.c
+@@ -1546,6 +1546,8 @@ get_options(dav_args *args, char *option)
+         COMMENT,
+         NOFAIL,
+         DEFAULTS,
++        SYMFOLLOW,
++        NOSYMFOLLOW,
+         END
+     };
+     char *suboptions[] = {
+@@ -1576,6 +1578,8 @@ get_options(dav_args *args, char *option)
+         [COMMENT] = "comment",
+         [NOFAIL] = "nofail",
+         [DEFAULTS] = "defaults",
++        [SYMFOLLOW] = "symfollow",
++        [NOSYMFOLLOW] = "nosymfollow",
+         [END] = NULL
+     };
+ 
+@@ -1672,6 +1676,8 @@ get_options(dav_args *args, char *option)
+         case NOAUTO:
+         case COMMENT:
+         case NOFAIL:
++        case SYMFOLLOW:
++        case NOSYMFOLLOW:
+         case DEFAULTS:
+             break;
+         default:
