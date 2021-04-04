@@ -1,0 +1,18 @@
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+pavucontrol: pavucontrol (PulseAudio Volume Control)
+pavucontrol:
+pavucontrol: PulseAudio Volume Control (pavucontrol) is a simple GTK based
+pavucontrol: volume control tool ("mixer") for the PulseAudio sound server.
+pavucontrol: In contrast to classic mixer tools this one allows you to control
+pavucontrol: both the volume of hardware devices and of each playback stream
+pavucontrol: separately.
+pavucontrol:
+pavucontrol: https://freedesktop.org/software/pulseaudio/pavucontrol
+pavucontrol:
