@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=imapfilter
-VERSION=${VERSION:-2.5.6}
+VERSION=${VERSION:-2.7.5}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -35,9 +35,9 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/v$VERSION.tar.?z*
+#tar xvf $CWD/v$VERSION.tar.?z*
+unzip $CWD/v$VERSION.zip
 cd $PRGNAM-$VERSION
-sed -is "s/^PREFIX *=.*$/PREFIX=\/usr/g" src/Makefile
 patch -p0 < $CWD/lua.patch
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
@@ -46,9 +46,9 @@ find . \
  \( -perm 666 -o -perm 664 -o -perm 600 -o -perm 444 -o -perm 440 -o -perm 400 \) \
  -exec chmod 644 {} \;
 
-[ "$JOBS" ] && make -j$JOBS || make
+[ "$JOBS" ] && PREFIX=/usr make -j$JOBS || PREFIX=/usr make
 [ "$DEBUG" ] && echo "make finished"
-make install DESTDIR=$PKG
+PREFIX=/usr make install DESTDIR=$PKG
 
 [ "$DEBUG" ] && echo "make install done: [$PKG]"
 ( cd $PKG
