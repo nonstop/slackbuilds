@@ -1,11 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 
 # Slackware build script for PostgreSQL
 #
-# $Revision$
-# $Date$
-#
-# Copyright 2007-2016 Adis Nezirovic <adis_at_linux.org.ba>
+# Copyright 2007-2018 Adis Nezirovic <adis_at_linux.org.ba>
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -27,16 +24,21 @@
 
 # Modified by the SlackBuilds.org Project
 
+# 20220301 bkw: Modified by SlackBuilds.org, BUILD=2:
+# - strip pg_config binary (install-strip misses that one).
+
+CWD=$(pwd)
+
 PRGNAM=postgresql
-VERSION=${VERSION:-10.2}
+VERSION=${VERSION:-14.3}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
+PKGTYPE=${PKGTYPE:-tgz}
 
-PG_VERSION=${PG_VERSION:-10.2}
+PG_VERSION=${PG_VERSION:-14}
 PG_PORT=${PG_PORT:-5432}
 PG_UID=${PG_UID:-209}
 PG_GID=${PG_GID:-209}
-PG_HOME=${PG_HOME:/home/postgres}
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -46,7 +48,11 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
-CWD=$(pwd)
+if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
+  echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
+  exit 0
+fi
+
 TMP=${TMP:-/tmp/SBo}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
@@ -61,7 +67,7 @@ if ! grep ^postgres: /etc/group 2>&1 > /dev/null; then
   exit 1
 elif ! grep ^postgres: /etc/passwd 2>&1 > /dev/null; then
   echo "  You must have a postgres user to run this script."
-  echo "    # useradd -u $PG_UID -g $PG_GID -d $PG_HOME postgres"
+  echo "    # useradd -u $PG_UID -g $PG_GID -d /var/lib/pgsql postgres"
   exit 1
 fi
 
@@ -91,9 +97,9 @@ set -e
 rm -rf $TMP/$PRGNAM-$VERSION $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-tar xvf $CWD/$PRGNAM-$VERSION.tar.bz2
+tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$VERSION
-[ "$TEST_BUILD" ] || chown -R root:root .
+chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
   -o -perm 511 \) -exec chmod 755 {} \; -o \
@@ -124,6 +130,9 @@ make
 make install-strip DESTDIR=$PKG
 make install-docs DESTDIR=$PKG
 
+# 20220414 bkw: this one binary wasn't getting stripped...
+strip $PKG/usr/lib${LIBDIRSUFFIX}/$PRGNAM/$PG_VERSION/bin/pg_config
+
 # create symlinks to shared library for other programs to link against
 ( cd $PKG/usr/lib${LIBDIRSUFFIX}
   for i in $(ls $PRGNAM/$PG_VERSION/lib/lib*.so*) ; do ln -sf $i ; done
@@ -136,7 +145,7 @@ make install-docs DESTDIR=$PKG
 )
 
 # Some interesting additional modules:
-#   http://www.postgresql.org/docs/10.2/static/contrib.html
+#   https://www.postgresql.org/docs/14/contrib.html
 #
 # adminpack - helper extension for pgAdmin
 # pgcrypto - extension for some business applications
@@ -169,12 +178,12 @@ cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/README.SBo > $PKG/usr/doc/$PRGNAM-$VERSION/README.SBo
 
 # base database directory
-# assumes you are using PG_HOME as a homedir for postgres user
-mkdir -p $PKG$PG_HOME/$PG_VERSION/data
-[ "$TEST_BUILD" ] || chown -R postgres:postgres $PKG$PG_HOME
-chmod 700 $PKG$PG_HOME
+# assumes you are using /var/lib/pgsql as a homedir for postgres user
+mkdir -p $PKG/var/lib/pgsql/$PG_VERSION/data
+chown -R postgres:postgres $PKG/var/lib/pgsql
+chmod 700 $PKG/var/lib/pgsql
 # permissions for DATADIR should be u=rwx (0700)
-chmod 700 $PKG$PG_HOME/$PG_VERSION/data
+chmod 700 $PKG/var/lib/pgsql/$PG_VERSION/data
 
 # Install init script
 mkdir -p $PKG/etc/rc.d
@@ -206,4 +215,4 @@ sed -e "s%@PG_VERSION@%$PG_VERSION%" \
   $CWD/doinst.sh > $PKG/install/doinst.sh
 
 cd $PKG
-/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.${PKGTYPE:-tgz}
+/sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE
