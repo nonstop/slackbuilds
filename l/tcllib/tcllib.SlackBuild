@@ -5,9 +5,9 @@
 # Written by Paul Wisehart wise@lupulin.net
 
 PRGNAM=tcllib
-VERSION=1.18
+VERSION=1.20
 BUILD=${BUILD:-1}
-TAG=${TAG:-_SBo}	
+TAG=${TAG:-_SBo}
 
 # Automatically determine the architecture we're building on:
 if [ -z "$ARCH" ]; then
@@ -74,7 +74,7 @@ find $PKG | xargs file | grep -e "executable" -e "shared object" | grep ELF \
   for i in $( find . -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 )
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a ChangeLog DESCRIPTION.txt README INSTALL.txt \
+cp -a ChangeLog DESCRIPTION.txt README.md \
   $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
