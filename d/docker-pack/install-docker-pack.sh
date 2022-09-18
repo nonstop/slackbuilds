@@ -13,18 +13,24 @@ if [ -z "$GOROOT" ]; then
 fi
 OUTPUT=/tmp
 
+settings_file=$HOME/.buildpkg
+if [ -f "$settings_file" ]; then
+    source "$settings_file"
+fi
+TAG=_evgeny
+
 function build__
 {
     removepkg $1 || true
     cd $1
-    OUTPUT=`pwd` buildpkg $1.SlackBuild
-    installpkg ./$1-*t?z
+    OUTPUT=`pwd` ./$1.SlackBuild
+    /sbin/installpkg ./$1-*t?z
     cd ..
 }
 
 build__ tini
-build__ libseccomp
 build__ runc
 build__ containerd
 build__ docker-proxy
 build__ docker
+build__ docker-cli
