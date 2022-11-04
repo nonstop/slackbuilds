@@ -23,7 +23,7 @@
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 PRGNAM=p7zip
-VERSION=15.09
+VERSION=17.04
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -55,8 +55,8 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf ${PRGNAM}_${VERSION}
-tar xvf $CWD/${PRGNAM}_${VERSION}_src_all.tar.bz2
-cd ${PRGNAM}_${VERSION}
+tar xvf $CWD/${PRGNAM}-${VERSION}.tar.?z*
+cd ${PRGNAM}-${VERSION}
 chown -R root:root .
 chmod -R u+w,go+r-w,a-s .
 
