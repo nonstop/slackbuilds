@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=gmrun
-VERSION=${VERSION:-0.9.2}
+VERSION=${VERSION:-1.4w}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -31,9 +31,8 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION
-tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+tar xvf $CWD/$PRGNAM-$VERSION.tar.?z*
 cd $PRGNAM-$VERSION
-patch -p0 < $CWD/gmrun.patch
 [ "$TEST_BUILD" ] || chown -R root:root .
 find . \
     \( -perm 777 -o -perm 775 -o -perm 711 -o -perm 555 -o -perm 511 \) \
@@ -58,7 +57,7 @@ find . | xargs file | grep "shared object" | grep ELF | cut -f 1 -d : | xargs st
 )
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a NEWS AUTHORS ChangeLog COPYING README INSTALL $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a AUTHORS ChangeLog README.md $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
 
