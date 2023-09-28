@@ -53,8 +53,7 @@ CFLAGS="$SLKCFLAGS" \
     --mandir=/usr/man \
     --libdir=/usr/lib$LIBDIRSUFFIX \
     --enable-daemon \
-    --enable-cli \
-    --enable-gtk
+    --enable-cli
 
 [ "$JOBS" ] && make -j$JOBS || make
 make install DESTDIR=$PKG
