@@ -30,12 +30,12 @@
 CWD=$(pwd)
 
 PRGNAM=postgresql
-VERSION=${VERSION:-14.3}
-BUILD=${BUILD:-1}
+VERSION=${VERSION:-16.1}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_SBo}
 PKGTYPE=${PKGTYPE:-tgz}
 
-PG_VERSION=${PG_VERSION:-14}
+PG_VERSION=${PG_VERSION:-16}
 PG_PORT=${PG_PORT:-5432}
 PG_UID=${PG_UID:-209}
 PG_GID=${PG_GID:-209}
@@ -145,7 +145,7 @@ strip $PKG/usr/lib${LIBDIRSUFFIX}/$PRGNAM/$PG_VERSION/bin/pg_config
 )
 
 # Some interesting additional modules:
-#   https://www.postgresql.org/docs/14/contrib.html
+#   https://www.postgresql.org/docs/16/contrib.html
 #
 # adminpack - helper extension for pgAdmin
 # pgcrypto - extension for some business applications
