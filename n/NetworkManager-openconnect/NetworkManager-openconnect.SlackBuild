@@ -100,6 +100,7 @@ CXXFLAGS="$SLKCFLAGS" \
   --without-libnm-glib \
   --build=$ARCH-slackware-linux
 
+patch -p0 < $CWD/anyconnect.patch
 make
 make install DESTDIR=$PKG
 

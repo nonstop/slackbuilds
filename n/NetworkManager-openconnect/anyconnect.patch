@@ -1,0 +1,13 @@
+--- ./auth-dialog/main.c	2024-05-16 09:21:56.229867544 +0300
++++ ./auth-dialog/main.c	2024-05-16 09:22:15.972882385 +0300
+@@ -1084,6 +1084,10 @@
+ #endif
+ 		return -EINVAL;
+ 
++#if OPENCONNECT_CHECK_VER(5,8)
++    openconnect_set_useragent(vpninfo, "AnyConnect");
++#endif
++
+ 	cafile = g_hash_table_lookup (options, NM_OPENCONNECT_KEY_CACERT);
+ 	if (cafile)
+ 		openconnect_set_cafile(vpninfo, OC3DUP (cafile));
