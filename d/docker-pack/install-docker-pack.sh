@@ -3,14 +3,12 @@
 function die
 {
     echo $1
-    echo 1
+    exit 1
 }
 
 ls -l /var/log/packages/ | grep -q gcc-go && die "gcc-go should be uninstalled"
 
-if [ -z "$GOROOT" ]; then
-    . /etc/profile.d/go.sh
-fi
+. /etc/profile.d/go.sh
 OUTPUT=/tmp
 
 settings_file=$HOME/.buildpkg
@@ -29,6 +27,7 @@ function build__
 }
 
 build__ tini
+build__ go-md2man
 build__ runc
 build__ containerd
 build__ docker-proxy

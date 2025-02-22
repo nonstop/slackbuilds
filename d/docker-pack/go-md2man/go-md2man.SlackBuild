@@ -1,9 +1,8 @@
 #!/bin/bash
 
-# Slackware build script for docker
+# Slackware build script for go-md2man
 
-# Copyright 2014-2015 Vincent Batts <vbatts@hashbangbash.com>
-# Copyright 2017-2021 Audrius Kažukauskas <audrius@neutrino.lt>
+# Copyright 2019 Vincent Batts, Raleigh, NC, USA
 # All rights reserved.
 #
 # Redistribution and use of this script, with or without modification, is
@@ -25,14 +24,16 @@
 
 cd $(dirname $0) ; CWD=$(pwd)
 
-PRGNAM=docker
-VERSION=${VERSION:-27.2.0}
-GITHASH=${GITHASH:-3ab5c7d}
-BUILD=${BUILD:-1}
+PRGNAM=go-md2man
+VERSION=${VERSION:-1.0.8}
+BUILD=${BUILD:-2}
 TAG=${TAG:-_SBo}
 PKGTYPE=${PKGTYPE:-tgz}
 
-SRCNAM=moby
+# The domain part of the go package name, usually the hosting platform
+DOMAIN=github.com
+# The name of the organization/owner of the package
+ORG=cpuguy83
 
 if [ -z "$ARCH" ]; then
   case "$( uname -m )" in
@@ -42,6 +43,9 @@ if [ -z "$ARCH" ]; then
   esac
 fi
 
+# If the variable PRINT_PACKAGE_NAME is set, then this script will report what
+# the name of the created package would be, and then exit. This information
+# could be useful to other scripts.
 if [ ! -z "${PRINT_PACKAGE_NAME}" ]; then
   echo "$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE"
   exit 0
@@ -51,14 +55,28 @@ TMP=${TMP:-/tmp/SBo}
 PKG=$TMP/package-$PRGNAM
 OUTPUT=${OUTPUT:-/tmp}
 
+if [ "$ARCH" = "i586" ]; then
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "i686" ]; then
+  LIBDIRSUFFIX=""
+elif [ "$ARCH" = "x86_64" ]; then
+  LIBDIRSUFFIX="64"
+else
+  LIBDIRSUFFIX=""
+fi
+
 set -e
 
 rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
-rm -rf $SRCNAM-$VERSION
-tar xvf $CWD/$SRCNAM-$VERSION.tar.gz
-cd $SRCNAM-$VERSION
+rm -rf $PRGNAM-$VERSION
+mkdir -p $PRGNAM-$VERSION/src/$DOMAIN/$ORG
+cd $PRGNAM-$VERSION/src/$DOMAIN/$ORG
+rm -rf $PRGNAM
+tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
+mv $PRGNAM-$VERSION $PRGNAM
+cd $PRGNAM
 chown -R root:root .
 find -L . \
  \( -perm 777 -o -perm 775 -o -perm 750 -o -perm 711 -o -perm 555 \
@@ -66,42 +84,24 @@ find -L . \
  \( -perm 666 -o -perm 664 -o -perm 640 -o -perm 600 -o -perm 444 \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
-mkdir -p src/github.com/docker
-ln -sf "$(pwd)" src/github.com/docker/docker
+# Point go to the location of the source tree
+export GOPATH="$TMP/$PRGNAM-$VERSION"
+export GOBIN="$PKG/usr/bin"
+export GO111MODULE="off"
 
-AUTO_GOPATH=1 \
-GO111MODULE=off \
-DOCKER_GITCOMMIT=$GITHASH \
-DOCKER_BUILDTAGS="seccomp" \
-VERSION=$VERSION \
-GOPATH="$(pwd)" \
-./hack/make.sh dynbinary
+go install -a -x ./...
 
-install -D -m 0755 bundles/dynbinary-daemon/dockerd \
-  $PKG/usr/bin/dockerd
-
-# Integrate required components.
-ln -s runc $PKG/usr/bin/docker-runc
-ln -s containerd $PKG/usr/bin/docker-containerd
-ln -s containerd-shim $PKG/usr/bin/docker-containerd-shim
-ln -s ctr $PKG/usr/bin/docker-containerd-ctr
-ln -s tini-static $PKG/usr/bin/docker-init
-
-install -D -m 0644 $CWD/config/docker.default $PKG/etc/default/docker.new
-install -D -m 0644 $CWD/config/docker.logrotate $PKG/etc/logrotate.d/docker.new
-install -D -m 0644 $CWD/config/rc.docker $PKG/etc/rc.d/rc.docker.new
-
-# Install udev rules.
-install -D -m 0644 contrib/udev/80-docker.rules \
-  $PKG/lib/udev/rules.d/80-docker.rules
+find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
+  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a LICENSE NOTICE README.md $PKG/usr/doc/$PRGNAM-$VERSION
+cp -a \
+  LICENSE.md README.md Gopkg.* \
+  $PKG/usr/doc/$PRGNAM-$VERSION
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
-cat $CWD/doinst.sh > $PKG/install/doinst.sh
 
 cd $PKG
 /sbin/makepkg -l y -c n $OUTPUT/$PRGNAM-$VERSION-$ARCH-$BUILD$TAG.$PKGTYPE

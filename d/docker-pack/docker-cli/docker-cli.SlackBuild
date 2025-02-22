@@ -27,8 +27,8 @@
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=docker-cli
-VERSION=${VERSION:-20.10.17}
-GITHASH=${GITHASH:-aa7e414fdcb23a66e8fabbef0a560ef1769eace5}
+VERSION=${VERSION:-27.2.0}
+GITHASH=${GITHASH:-3ab42569583b58dbc6f167d842d5a3dd5972065f}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
 PKGTYPE=${PKGTYPE:-tgz}
@@ -78,7 +78,7 @@ make dynbinary \
   VERSION=$VERSION \
   GOPATH=$TMP/$SRCNAM-$VERSION/build
 
-install -D -m 0755 -s build/docker-linux-amd64 $PKG/usr/bin/docker
+install -D -m 0755 -s build/docker-linux-* $PKG/usr/bin/docker
 
 # Completion.
 ( cd contrib/completion
