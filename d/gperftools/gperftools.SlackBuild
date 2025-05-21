@@ -5,7 +5,7 @@
 # Written by Evgeny Ratnikov (ratnikov dot ev at gmail dot com)
 
 PRGNAM=gperftools
-VERSION=${VERSION:-2.10}
+VERSION=${VERSION:-2.15}
 ARCH=${ARCH:-i486}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
@@ -65,11 +65,14 @@ find . -type f -exec gzip -9 {} \;
 for i in $( find . -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 )
 
-
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
-cp -a README AUTHORS COPYING ChangeLog INSTALL NEWS TODO $PKG/usr/doc/$PRGNAM-$VERSION
+DOCUMENTATION="README AUTHORS COPYING ChangeLog INSTALL NEWS"
+for f in $DOCUMENTATION; do
+    [ -f "$f" ] && cp -a $f $PKG/usr/doc/$PRGNAM-$VERSION
+done
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/slack-desc > $PKG/usr/doc/$PRGNAM-$VERSION/slack-desc
+cp -r ./docs $PKG/usr/doc/$PRGNAM-$VERSION/
 
 mkdir -p $PKG/install
 cat $CWD/slack-desc > $PKG/install/slack-desc
