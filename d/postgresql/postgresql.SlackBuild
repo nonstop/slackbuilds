@@ -30,12 +30,12 @@
 CWD=$(pwd)
 
 PRGNAM=postgresql
-VERSION=${VERSION:-16.4}
+VERSION=${VERSION:-17.5}
 BUILD=${BUILD:-2}
 TAG=${TAG:-_SBo}
 PKGTYPE=${PKGTYPE:-tgz}
 
-PG_VERSION=${PG_VERSION:-16}
+PG_VERSION=${PG_VERSION:-17}
 PG_PORT=${PG_PORT:-5432}
 PG_UID=${PG_UID:-209}
 PG_GID=${PG_GID:-209}
@@ -145,7 +145,7 @@ strip $PKG/usr/lib${LIBDIRSUFFIX}/$PRGNAM/$PG_VERSION/bin/pg_config
 )
 
 # Some interesting additional modules:
-#   https://www.postgresql.org/docs/16/contrib.html
+#   https://www.postgresql.org/docs/17/contrib.html
 #
 # adminpack - helper extension for pgAdmin
 # pgcrypto - extension for some business applications
@@ -172,7 +172,10 @@ cd $TMP/$PRGNAM-$VERSION
 find $PKG/usr/man -type f -exec gzip -9 {} \;
 for i in $( find $PKG/usr/man -type l ) ; do ln -s $( readlink $i ).gz $i.gz ; rm $i ; done
 
-cp -a COPYRIGHT HISTORY README doc/KNOWN_BUGS doc/MISSING_FEATURES doc/TODO $PKG/usr/doc/$PRGNAM-$VERSION/
+DOCUMENTS="COPYRIGHT HISTORY README doc/KNOWN_BUGS doc/MISSING_FEATURES doc/TODO"
+for d in $DOCUMENTS; do
+    [ -f $d ] && cp -a $d $PKG/usr/doc/$PRGNAM-$VERSION/
+done
 rm -rf $PKG/usr/doc/$PRGNAM-$VERSION/{man.tar.gz,man1,manl,man7,postgres.tar.gz}
 cat $CWD/$PRGNAM.SlackBuild > $PKG/usr/doc/$PRGNAM-$VERSION/$PRGNAM.SlackBuild
 cat $CWD/README.SBo > $PKG/usr/doc/$PRGNAM-$VERSION/README.SBo
