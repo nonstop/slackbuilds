@@ -1,0 +1,9 @@
+rofi: rofi (A window switcher, app launcher, dmenu replacement and more)
+rofi:
+rofi: rofi is an X11 pop-up window switcher, run dialog, dmenu replacement,
+rofi: and more. It focuses on being fast to use and have minimal distraction.
+rofi: It supports keyboard and mouse navigation, type to filter,
+rofi: tokenized search and more.
+rofi:
+rofi: https://davatorium.github.io/rofi/
+rofi:
