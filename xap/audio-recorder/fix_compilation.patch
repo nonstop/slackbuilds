@@ -1,0 +1,11 @@
+--- src/settings.c	2017-10-21 16:01:02.000000000 +0300
++++ src/settings.c	2025-12-25 10:32:38.968745622 +0300
+@@ -848,7 +848,7 @@
+     // -----------------------------------------------------
+     // Tab page 2, Page to edit media profiles and Gstreamer pipelines
+     // -----------------------------------------------------
+-    GtkWidget *vbox2 = page_to_edit_pipelines(GTK_WINDOW(g_dialog));
++    GtkWidget *vbox2 = page_to_edit_pipelines();
+ 
+     // Translators: This is a [Tab-page] in the [Additional settings] dialog.
+     page_label = gtk_label_new(_("Recording commands"));
