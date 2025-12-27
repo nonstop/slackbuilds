@@ -5,7 +5,4 @@
 *.tbz2
 *.zip
 *.exe
-ap/mp32ogg/mp32ogg
-ap/unrar/unrar.1.gz
-ap/vim/patches/
-
+*.crate
