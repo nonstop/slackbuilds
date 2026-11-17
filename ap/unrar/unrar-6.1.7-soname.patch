@@ -1,5 +1,6 @@
---- ./makefile	2022-08-29 22:06:58.756376568 +0300
-+++ ./makefile	2022-08-29 22:07:51.781378545 +0300
+diff -Naur unrar.orig/makefile unrar/makefile
+--- unrar.orig/makefile	2022-02-22 11:43:06.000000000 +0100
++++ unrar/makefile	2022-06-29 15:30:41.787420000 +0200
 @@ -157,7 +157,7 @@
  lib:	CXXFLAGS+=$(LIBFLAGS)
  lib:	clean $(OBJECTS) $(LIB_OBJ)
